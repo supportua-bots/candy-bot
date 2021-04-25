@@ -1,0 +1,55 @@
+{'py/object': 'telegram.message.Message', 'message_id': 902, 'from_user': {'py/object': 'telegram.user.User', 'id': 389609639, 'first_name': 'Николай', 'is_bot': False, 'last_name'
+: 'Кириченко', 'username': 'nikolaikyrychenko', 'language_code': 'en', 'can_join_groups': None, 'can_read_all_group_messages': None, 'supports_inline_queries': None, 'bot': {'py/ob
+ject': 'telegram.bot.Bot', 'token': '1743217261:AAE2qKWfV-vAk3Lwv1OK-9glqlajAZvuVNI', 'defaults': None, 'base_url': 'https://api.telegram.org/bot1743217261:AAE2qKWfV-vAk3Lwv1OK-9gl
+qlajAZvuVNI', 'base_file_url': 'https://api.telegram.org/file/bot1743217261:AAE2qKWfV-vAk3Lwv1OK-9glqlajAZvuVNI', '_bot': {'py/object': 'telegram.user.User', 'id': 1743217261, 'fir
+st_name': 'BotForTests', 'is_bot': True, 'last_name': None, 'username': 'implementations_testing_bot', 'language_code': None, 'can_join_groups': True, 'can_read_all_group_messages'
+: False, 'supports_inline_queries': False, 'bot': {'py/id': 2}, '_id_attrs': {'py/tuple': [1743217261]}}, '_commands': None, '_request': {'py/object': 'telegram.utils.request.Reque
+st', '_connect_timeout': 30.0, '_con_pool_size': 8, '_con_pool': {'py/object': 'telegram.vendor.ptb_urllib3.urllib3.poolmanager.PoolManager', 'headers': {}, 'connection_pool_kw': {
+'maxsize': 8, 'cert_reqs': 'CERT_REQUIRED', 'ca_certs': '/Users/nikolai/Development/code/kandi-bots/env/lib/python3.9/site-packages/certifi/cacert.pem', 'socket_options': [{'py/tup
+le': [6, 1, 1]}, {'py/tuple': [65535, 8, 1]}], 'timeout': {'py/object': 'telegram.vendor.ptb_urllib3.urllib3.util.timeout.Timeout', '_connect': 30.0, '_read': 5.0, 'total': None, '
+_start_connect': None}}, 'pools': {'py/object': 'telegram.vendor.ptb_urllib3.urllib3._collections.RecentlyUsedContainer', '_maxsize': 10, '_container': {'py/reduce': [{'py/type': '
+collections.OrderedDict'}, {'py/tuple': []}, None, None, {'py/tuple': [{'py/tuple': [{'py/object': 'telegram.vendor.ptb_urllib3.urllib3.poolmanager.HTTPSPoolKey', 'py/newargs': {'p
+y/tuple': ['https', 'api.telegram.org', 443, {'py/id': 9}, None, None, None, None, None, None, 'CERT_REQUIRED', '/Users/nikolai/Development/code/kandi-bots/env/lib/python3.9/site-p
+ackages/certifi/cacert.pem', None, None, None]}, 'py/seq': ['https', 'api.telegram.org', 443, {'py/id': 9}, None, None, None, None, None, None, 'CERT_REQUIRED', '/Users/nikolai/Dev
+
+elopment/code/kandi-bots/env/lib/python3.9/site-packages/certifi/cacert.pem', None, None, None]}, {'py/object': 'telegram.vendor.ptb_urllib3.urllib3.connectionpool.HTTPSConnectionP
+ool', 'host': 'api.telegram.org', 'port': 443, 'headers': {}, 'strict': False, 'timeout': {'py/id': 9}, 'retries': {'py/object': 'telegram.vendor.ptb_urllib3.urllib3.util.retry.Ret
+ry', 'total': 3, 'connect': None, 'read': None, 'redirect': None, 'status_forcelist': {'py/set': []}, 'method_whitelist': {'py/reduce': [{'py/type': 'builtins.frozenset'}, {'py/tup
+le': [['DELETE', 'HEAD', 'TRACE', 'GET', 'PUT', 'OPTIONS']]}]}, 'backoff_factor': 0, 'raise_on_redirect': True, 'raise_on_status': True, 'history': {'py/tuple': []}, 'respect_retry
+_after_header': True}, 'pool': {'py/object': 'queue.LifoQueue', 'maxsize': 8, 'queue': [None, None, None, None, None, None, {'py/object': 'telegram.vendor.ptb_urllib3.urllib3.conne
+ction.VerifiedHTTPSConnection', 'source_address': None, 'socket_options': {'py/id': 8}, 'timeout': 30.0, 'blocksize': 8192, 'sock': None, '_buffer': [], '_HTTPConnection__response'
+: {'py/object': 'http.client.HTTPResponse', 'fp': None, 'debuglevel': 0, '_method': 'POST', 'headers': {'py/object': 'http.client.HTTPMessage', 'policy': {'py/object': 'email._poli
+cybase.Compat32'}, '_headers': [{'py/tuple': ['Server', 'nginx/1.18.0']}, {'py/tuple': ['Date', 'Thu, 22 Apr 2021 09:05:25 GMT']}, {'py/tuple': ['Content-Type', 'application/json']
+}, {'py/tuple': ['Content-Length', '860']}, {'py/tuple': ['Connection', 'keep-alive']}, {'py/tuple': ['Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload']},
+ {'py/tuple': ['Access-Control-Allow-Origin', '*']}, {'py/tuple': ['Access-Control-Allow-Methods', 'GET, POST, OPTIONS']}, {'py/tuple': ['Access-Control-Expose-Headers', 'Content-L
+ength,Content-Type,Date,Server,Connection']}], '_unixfrom': None, '_payload': '', '_charset': None, 'preamble': None, 'epilogue': None, 'defects': [], '_default_type': 'text/plain'
+}, 'msg': {'py/id': 24}, 'version': 11, 'status': 200, 'reason': 'OK', 'chunked': False, 'chunk_left': 'UNKNOWN', 'length': 0, 'will_close': False, 'code': 200}, '_HTTPConnection__
+state': 'Idle', '_method': 'POST', '_tunnel_host': None, '_tunnel_port': None, '_tunnel_headers': {}, 'host': 'api.telegram.org', 'port': 443, '_create_connection': {'py/function':
+ 'socket.create_connection'}, 'key_file': None, 'cert_file': None, 'ssl_context': {'py/object': 'ssl.SSLContext'}, '_protocol': 'https', 'cert_reqs': 'CERT_REQUIRED', 'assert_hostn
+ame': None, 'assert_fingerprint': None, 'ca_certs': '/Users/nikolai/Development/code/kandi-bots/env/lib/python3.9/site-packages/certifi/cacert.pem', 'ca_cert_dir': None, 'ssl_versi
+on': None, 'is_verified': True}], 'mutex': {'py/object': '_thread.lock', 'locked': False}, 'not_empty': {'py/object': 'threading.Condition', '_lock': {'py/id': 30}, 'acquire': {'py
+/function': 'None.lock.acquire'}, 'release': {'py/function': 'None.lock.release'}, '_waiters': {'py/reduce': [{'py/type': 'collections.deque'}, {'py/tuple': []}, None, {'py/tuple':
+ []}]}}, 'not_full': {'py/object': 'threading.Condition', '_lock': {'py/id': 30}, 'acquire': {'py/function': 'None.lock.acquire'}, 'release': {'py/function': 'None.lock.release'},
+'_waiters': {'py/reduce': [{'py/type': 'collections.deque'}, {'py/tuple': []}, None, {'py/tuple': []}]}}, 'all_tasks_done': {'py/object': 'threading.Condition', '_lock': {'py/id':
+30}, 'acquire': {'py/function': 'None.lock.acquire'}, 'release': {'py/function': 'None.lock.release'}, '_waiters': {'py/reduce': [{'py/type': 'collections.deque'}, {'py/tuple': []}
+, None, {'py/tuple': []}]}}, 'unfinished_tasks': 31}, 'block': False, 'proxy': None, 'proxy_headers': {}, 'num_connections': 2, 'num_requests': 23, 'conn_kw': {'socket_options': {'
+py/id': 8}}, 'key_file': None, 'cert_file': None, 'cert_reqs': 'CERT_REQUIRED', 'ca_certs': '/Users/nikolai/Development/code/kandi-bots/env/lib/python3.9/site-packages/certifi/cace
+rt.pem', 'ca_cert_dir': None, 'ssl_version': None, 'assert_hostname': None, 'assert_fingerprint': None}]}]}]}, 'lock': {'py/object': '_thread.RLock'}}, 'pool_classes_by_scheme': {'
+http': {'py/type': 'telegram.vendor.ptb_urllib3.urllib3.connectionpool.HTTPConnectionPool'}, 'https': {'py/type': 'telegram.vendor.ptb_urllib3.urllib3.connectionpool.HTTPSConnectio
+nPool'}}, 'key_fn_by_scheme': {'http': {'py/reduce': [{'py/type': 'functools.partial'}, {'py/tuple': [{'py/function': 'telegram.vendor.ptb_urllib3.urllib3.poolmanager._default_key_
+normalizer'}]}, {'py/tuple': [{'py/function': 'telegram.vendor.ptb_urllib3.urllib3.poolmanager._default_key_normalizer'}, {'py/tuple': [{'py/type': 'telegram.vendor.ptb_urllib3.url
+lib3.poolmanager.HTTPPoolKey'}]}, {}, {}]}]}, 'https': {'py/reduce': [{'py/type': 'functools.partial'}, {'py/tuple': [{'py/function': 'telegram.vendor.ptb_urllib3.urllib3.poolmanag
+er._default_key_normalizer'}]}, {'py/tuple': [{'py/function': 'telegram.vendor.ptb_urllib3.urllib3.poolmanager._default_key_normalizer'}, {'py/tuple': [{'py/type': 'telegram.vendor
+.ptb_urllib3.urllib3.poolmanager.HTTPSPoolKey'}]}, {}, {}]}]}}}}, 'logger': {'py/reduce': [{'py/function': 'logging.getLogger'}, {'py/tuple': ['telegram.bot']}]}}, '_id_attrs': {'p
+y/tuple': [389609639]}}, 'sender_chat': None, 'date': {'py/object': 'datetime.datetime', '__reduce__': [{'py/type': 'datetime.datetime'}, ['B+UEFgkFGgAAAA==', {'py/reduce': [{'py/f
+unction': 'pytz._UTC'}, {'py/tuple': []}]}]]}, 'chat': {'py/object': 'telegram.chat.Chat', 'id': 389609639, 'type': 'private', 'title': None, 'username': 'nikolaikyrychenko', 'firs
+t_name': 'Николай', 'last_name': 'Кириченко', 'all_members_are_administrators': None, 'photo': None, 'bio': None, 'description': None, 'invite_link': None, 'pinned_message': None,
+'permissions': None, 'slow_mode_delay': None, 'message_auto_delete_time': None, 'sticker_set_name': None, 'can_set_sticker_set': None, 'linked_chat_id': None, 'location': None, 'bo
+t': {'py/id': 2}, '_id_attrs': {'py/tuple': [389609639]}}, 'forward_from': None, 'forward_from_chat': None, 'forward_date': None, 'reply_to_message': None, 'edit_date': None, 'text
+': 'Продовжити', 'entities': [], 'caption_entities': [], 'audio': None, 'game': None, 'document': None, 'photo': [], 'sticker': None, 'video': None, 'voice': None, 'video_note': No
+ne, 'caption': None, 'contact': None, 'location': None, 'venue': None, 'new_chat_members': [], 'left_chat_member': None, 'new_chat_title': None, 'new_chat_photo': [], 'delete_chat_
+photo': False, 'group_chat_created': False, 'supergroup_chat_created': False, 'migrate_to_chat_id': None, 'migrate_from_chat_id': None, 'channel_chat_created': False, 'message_auto
+_delete_timer_changed': None, 'pinned_message': None, 'forward_from_message_id': None, 'invoice': None, 'successful_payment': None, 'connected_website': None, 'forward_signature':
+None, 'forward_sender_name': None, 'author_signature': None, 'media_group_id': None, 'animation': None, 'passport_data': None, 'poll': None, 'dice': None, 'via_bot': None, 'proximi
+ty_alert_triggered': None, 'voice_chat_started': None, 'voice_chat_ended': None, 'voice_chat_participants_invited': None, 'reply_markup': None, 'bot': {'py/id': 2}, '_id_attrs': {'
+py/tuple': [902, {'py/id': 51}]}}

@@ -1,0 +1,518 @@
+import os
+import time
+import requests
+import locale
+import json
+import jsonpickle
+import glob
+from pathlib import Path
+from dotenv import load_dotenv
+from datetime import date, datetime, timedelta
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Update,
+                        ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton)
+from telegram.ext import CallbackContext, ConversationHandler
+from telegrambot.utils import resources
+from jivochat import sender as jivochat
+from jivochat.utils import resources as jivosource
+
+
+dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
+load_dotenv(dotenv_path)
+TOKEN = os.getenv("TOKEN")
+
+locale.setlocale(locale.LC_TIME, 'uk_UA.UTF-8')
+NAME, PHONE, CATEGORY, SERIAL_NUMBER, PHOTOS, REASON, CHAT = range(7)
+
+
+def choice_definer(update):
+    keyboard = update.callback_query.message.reply_markup.inline_keyboard
+    choice = ''
+    for item in keyboard:
+        if item[0].callback_data == update.callback_query.data:
+            choice = item[0].text
+    return choice
+
+def save_message_to_history(message, type):
+    text = ''
+    now = datetime.now().strftime("%d.%m.%Y %H:%M")
+    if type == 'bot':
+        text += 'Bot '
+    else:
+        text += 'User '
+    text += f'{now}: {message}\n'
+    return text
+
+
+def workdays(d, end, excluded=(6, 7)):
+    days = []
+    while d.date() <= end.date():
+        if d.isoweekday() not in excluded:
+            days.append(d)
+        d += timedelta(days=1)
+    return days[1:21]
+
+
+def divide_chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
+def greetings_handler(update: Update, context: CallbackContext):
+    menu_handler(update, context)
+
+
+def menu_handler(update: Update, context: CallbackContext):
+    if 'NAME' not in context.user_data:
+        context.user_data['NAME'] = 'TelegramUser'
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(text='Запис на відео чат',
+                                callback_data='video')
+        ],[
+            InlineKeyboardButton(text="Зв'язок з оператором",
+                                callback_data='operator'),
+        ],
+    ]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    try:
+        request = update.callback_query
+        choice = choice_definer(update)
+        context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+        update.callback_query.edit_message_text(
+            text=update.callback_query.message.text
+        )
+        context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                        text=resources.greeting_message,
+                        reply_markup=inline_buttons)
+    except AttributeError:
+        request = update.message
+        context.bot.send_message(chat_id=update.message.from_user.id,
+                        text=resources.greeting_message,
+                        reply_markup=inline_buttons)
+    context.user_data['HISTORY'] += save_message_to_history(resources.greeting_message, 'bot')
+    return ConversationHandler.END
+
+
+def operator_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    contact_keyboard = KeyboardButton('Завершити чат')
+    reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
+                                        resize_keyboard=True)
+    try:
+        request = update.callback_query
+        chat_id=update.callback_query.message.chat.id
+        update.callback_query.edit_message_text(
+            text=update.callback_query.message.text
+        )
+        context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                        text=resources.operator_message,
+                        reply_markup=reply_markup)
+    except AttributeError:
+        request = update.message
+        chat_id=update.message.from_user.id
+        context.bot.send_message(chat_id=update.message.from_user.id,
+                        text=resources.operator_message,
+                        reply_markup=reply_markup)
+    context.user_data['HISTORY'] += save_message_to_history(resources.operator_message, 'bot')
+    jivochat.send_message(chat_id,
+                          context.user_data['NAME'],
+                          context.user_data['HISTORY'],
+                          'telegram')
+    try:
+        with open(f'media/{chat_id}/links.txt', 'r') as f:
+            content = f.read()
+            links = content.split(',')
+            for link in links:
+                name = link.split('/')[-1]
+                if name[-3:] == 'jpg':
+                    jivochat.send_photo(chat_id, context.user_data['NAME'], link, name, 'telegram')
+                else:
+                    jivochat.send_document(chat_id, context.user_data['NAME'], link, name, 'telegram')
+    except IOError:
+        print("File not accessible")
+    context.user_data['HISTORY'] = ''
+    all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
+    for i in all_filenames:
+        f = open(i ,'rb')
+        os.remove(i)
+    open(f'media/{chat_id}/links.txt', 'w').close()
+    return CHAT
+
+
+def chat_handler(update: Update, context: CallbackContext):
+    reply = update.message.text
+    payload = json.loads(jsonpickle.encode(update.message))
+    chat_id = update.message.from_user.id
+    if payload and payload['photo']:
+        file = context.bot.get_file(update.message.photo[-1].file_id)['file_path']
+        name = file.split('/')[-1]
+        jivochat.send_photo(chat_id, context.user_data['NAME'], file, name, 'telegram')
+    if payload and payload['document']:
+        file = context.bot.get_file(update.message.document.file_id)['file_path']
+        name = file.split('/')[-1]
+        jivochat.send_document(chat_id, context.user_data['NAME'], file, name, 'telegram')
+    if reply == 'Завершити чат':
+        inline_keyboard = [
+            [
+                InlineKeyboardButton(text='Запис на відео чат',
+                                    callback_data='video')
+            ],[
+                InlineKeyboardButton(text="Зв'язок з оператором",
+                                    callback_data='operator'),
+            ],
+        ]
+        inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+        reply_markup = ReplyKeyboardRemove()
+        jivochat.send_message(update.message.from_user.id,
+                              context.user_data['NAME'],
+                              jivosource.user_ended_chat,
+                              'telegram')
+        context.bot.send_message(chat_id=update.message.from_user.id,
+                        text=resources.chat_ending,
+                        reply_markup=reply_markup)
+        time.sleep(1)
+        context.bot.send_message(chat_id=update.message.from_user.id,
+                        text=resources.greeting_message,
+                        reply_markup=inline_buttons)
+        return ConversationHandler.END
+    else:
+        jivochat.send_message(update.message.from_user.id,
+                              context.user_data['NAME'],
+                              reply,
+                              'telegram')
+        return CHAT
+
+
+def echo_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    message = update.message.text
+    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    update.message.reply_text(
+        resources.echo_message,
+    )
+    context.user_data['HISTORY'] += save_message_to_history(resources.echo_message, 'bot')
+    return ConversationHandler.END
+
+
+def video_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['ID'] = update.callback_query.message.chat.id
+    choice = choice_definer(update)
+    context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(text='Продовжити',
+                                callback_data='continue')
+        ],[
+            InlineKeyboardButton(text='Меню',
+                                callback_data='start'),
+        ],
+    ]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.callback_query.edit_message_text(
+        text=f'{update.callback_query.message.text}\nВаш вибір: {choice}')
+    context.bot.send_message(chat_id=context.user_data['ID'],
+                    text=resources.video_acceptance_message,
+                    reply_markup=inline_buttons)
+    context.user_data['HISTORY'] += save_message_to_history(resources.video_acceptance_message, 'bot')
+    return ConversationHandler.END
+
+
+def acceptance_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    choice = choice_definer(update)
+    context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+    contact_keyboard = KeyboardButton("Зв'язок з оператором")
+    reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
+                                        resize_keyboard=True)
+    update.callback_query.edit_message_text(
+        text=f'{update.callback_query.message.text}\nВаш вибір: {choice}'
+    )
+    context.bot.send_message(chat_id=context.user_data['ID'],
+                    text=resources.name_message,
+                    reply_markup=reply_markup)
+    context.user_data['HISTORY'] += save_message_to_history(resources.name_message, 'bot')
+    return NAME
+
+
+def name_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['NAME'] = update.message.text
+    message = update.message.text
+    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    contact_keyboard = [[KeyboardButton('Подiлитись номером',
+                                        request_contact=True,)],
+                        [KeyboardButton("Зв'язок з оператором")]]
+
+    reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                        resize_keyboard=True,
+                                        one_time_keyboard=True)
+    update.message.reply_text(
+                    text=resources.phone_message,
+                    reply_markup=reply_markup)
+    context.user_data['HISTORY'] += save_message_to_history(resources.phone_message, 'bot')
+    return PHONE
+
+
+def phone_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    try:
+        context.user_data['PHONE'] = update.message.contact.phone_number
+        message = update.message.contact.phone_number
+        context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+        contact_keyboard = KeyboardButton("Зв'язок з оператором")
+        reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
+                                            resize_keyboard=True)
+        update.message.reply_text(
+            text=resources.category_message,
+            reply_markup=reply_markup
+        )
+        context.user_data['HISTORY'] += save_message_to_history(resources.category_message, 'bot')
+        return CATEGORY
+    except AttributeError:
+        if update.message.text[:3] == '380' and len(update.message.text) == 12:
+            context.user_data['PHONE'] = update.message.text
+            message = update.message.text
+            context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+            contact_keyboard = KeyboardButton("Зв'язок з оператором")
+            reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
+                                                resize_keyboard=True)
+            update.message.reply_text(
+                text=resources.category_message,
+                reply_markup=reply_markup
+            )
+            context.user_data['HISTORY'] += save_message_to_history(resources.category_message, 'bot')
+            return CATEGORY
+        else:
+            update.message.reply_text(
+                text=resources.phone_error
+            )
+            context.user_data['HISTORY'] += save_message_to_history(resources.phone_error, 'bot')
+            return PHONE
+
+
+def category_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['CATEGORY'] = update.message.text
+    message = update.message.text
+    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(text='Candy',
+                                callback_data='brand-Candy')
+        ],[
+            InlineKeyboardButton(text="Hoover",
+                                callback_data='brand-Hoover'),
+        ],[
+            InlineKeyboardButton(text="Rosieres",
+                                callback_data='brand-Rosieres'),
+        ],
+    ]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.message.reply_text(
+        text=resources.brand_message,
+        reply_markup=inline_buttons
+    )
+    context.user_data['HISTORY'] += save_message_to_history(resources.brand_message, 'bot')
+    return ConversationHandler.END
+
+
+def brand_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['BRAND'] = update.callback_query.data.split('-')[1]
+    choice = choice_definer(update)
+    context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+    update.callback_query.edit_message_text(
+        text=f'{update.callback_query.message.text}\nВаш вибір: {choice}'
+    )
+    context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                    text=resources.serial_number_message)
+    context.user_data['HISTORY'] += save_message_to_history(resources.serial_number_message, 'bot')
+    return SERIAL_NUMBER
+
+
+def serial_number_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['SERIAL_NUMBER'] = update.message.text
+    message = update.message.text
+    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(text='Продовжити',
+                                callback_data='upload'),
+        ],
+    ]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.message.reply_text(
+        text=resources.photo_message,
+        reply_markup=inline_buttons
+    )
+    context.user_data['HISTORY'] += save_message_to_history(resources.photo_message, 'bot')
+    return PHOTOS
+
+
+def photos_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    # context.user_data['PHOTOS'] = update.message.photo
+    user_id = context.user_data['ID']
+    try:
+        request = update.message
+    except AttributeError:
+        request = update
+    payload = json.loads(jsonpickle.encode(request))
+    if not os.path.exists(f'media/{user_id}'):
+        os.makedirs(f'media/{user_id}')
+    if payload and payload['photo']:
+        tele_file = context.bot.get_file(update.message.photo[-1].file_id)
+        file_path = tele_file['file_path']
+        file_links = open(f'media/{user_id}/links.txt', 'a')
+        file_links.write(f'{file_path},')
+        file_links.close()
+        tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
+        return PHOTOS
+    if payload and payload['document']:
+        tele_file = context.bot.get_file(update.message.document.file_id)
+        file_path = str(tele_file['file_path'])
+        file_links = open(f'media/{user_id}/links.txt', 'a')
+        file_links.write(f'{file_path},')
+        file_links.close()
+        tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
+        return PHOTOS
+    else:
+        try:
+            request = update.callback_query
+            all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
+            if all_filenames:
+                update.callback_query.edit_message_text(
+                    text=update.callback_query.message.text
+                )
+                context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                                text=resources.reason_message)
+                context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
+                return REASON
+            else:
+                update.callback_query.edit_message_text(
+                    text=update.callback_query.message.text
+                )
+                inline_keyboard = [
+                    [
+                        InlineKeyboardButton(text='Продовжити',
+                                            callback_data='upload'),
+                    ],
+                ]
+                inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+                context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                                text=resources.photo_error,
+                                reply_markup=inline_buttons)
+                context.user_data['HISTORY'] += save_message_to_history(resources.photo_error, 'bot')
+                return PHOTOS
+        except AttributeError:
+            request = update.message
+            context.bot.send_message(chat_id=update.message.from_user.id,
+                            text=resources.reason_message)
+            context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
+            return REASON
+
+
+def reason_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    context.user_data['REASON'] = update.message.text
+    message = update.message.text
+    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    list_of_dates = workdays(datetime.now(), datetime.now() + timedelta(days=30))
+    beautified_dates = [(x.strftime('%d-%m-%Y'), x.strftime('%a, %d %b')) for x in list_of_dates]
+    sorted_dates = list(divide_chunks(beautified_dates, 4))
+    inline_keyboard = [[InlineKeyboardButton(text=x[1],
+                                callback_data=f'date%{x[0]}') for x in item] for item in sorted_dates]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.message.reply_text(
+        text=resources.date_message,
+        reply_markup=inline_buttons,
+    )
+    context.user_data['HISTORY'] += save_message_to_history(resources.date_message, 'bot')
+    return ConversationHandler.END
+
+
+def date_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    date = update.callback_query.data.split('%')[1]
+    context.user_data['DATE'] = date
+    context.user_data['HISTORY'] += save_message_to_history(date, 'user')
+    inline_keyboard = [[InlineKeyboardButton(text=x,
+                                callback_data=f'time%{x}') for x in item] for item in resources.time_chunks]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.callback_query.edit_message_text(
+        text=update.callback_query.data.split('%')[1]
+    )
+    context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                    text=resources.time_message,
+                    reply_markup=inline_buttons)
+    context.user_data['HISTORY'] += save_message_to_history(resources.time_message, 'bot')
+    return ConversationHandler.END
+
+
+def time_handler(update: Update, context: CallbackContext):
+    if 'HISTORY' not in context.user_data:
+        context.user_data['HISTORY'] = ''
+    time = update.callback_query.data.split('%')[1]
+    context.user_data['TIME'] = time
+    context.user_data['HISTORY'] += save_message_to_history(time, 'user')
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(text='Меню',
+                                callback_data='start'),
+        ],
+    ]
+    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    update.callback_query.edit_message_text(
+        text=update.callback_query.data.split('%')[1]
+    )
+    data_list = [str(context.user_data[key]) for key in context.user_data.keys()]
+    text = ''
+    if 'NAME' in context.user_data.keys():
+        text += f"Прiзвище та Ім'я: {context.user_data['NAME']}\n"
+    if 'PHONE' in context.user_data.keys():
+        text += f'Номер: {context.user_data["PHONE"]}\n'
+    if 'CATEGORY' in context.user_data.keys():
+        text += f'Категорiя: {context.user_data["CATEGORY"]}\n'
+    if 'BRAND' in context.user_data.keys():
+        text += f'Бренд: {context.user_data["BRAND"]}\n'
+    if 'SERIAL_NUMBER' in context.user_data.keys():
+        text += f'Серiйний номер: {context.user_data["SERIAL_NUMBER"]}\n'
+    if 'REASON' in context.user_data.keys():
+        text += f'Причина: {context.user_data["REASON"]}\n'
+    if 'DATE' in context.user_data.keys():
+        text += f'Дата: {context.user_data["DATE"]}\n'
+    if 'TIME' in context.user_data.keys():
+        text += f'Час: {context.user_data["TIME"]}\n'
+    reply_markup = ReplyKeyboardRemove()
+    context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                            text=text,
+                            reply_markup=reply_markup)
+    context.user_data['HISTORY'] += save_message_to_history(text, 'bot')
+    context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                        text=resources.final_message,
+                        reply_markup=inline_buttons)
+    context.user_data['HISTORY'] += save_message_to_history(resources.final_message, 'bot')
+    context.user_data['HISTORY'] = ''
+    all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
+    for i in all_filenames:
+        f = open(i ,'rb')
+        # context.bot.send_document(chat_id=update.callback_query.message.chat.id, document=f)
+        os.remove(i)
+    open(f'media/{update.callback_query.message.chat.id}/links.txt', 'w').close()
+    return ConversationHandler.END
