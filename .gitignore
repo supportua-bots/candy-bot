@@ -8,3 +8,5 @@ db.sqlite3
 *.zip
 logs/
 *.DS_Store
+*.jpg
+*.txt

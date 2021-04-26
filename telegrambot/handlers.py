@@ -96,6 +96,8 @@ def menu_handler(update: Update, context: CallbackContext):
 
 
 def operator_handler(update: Update, context: CallbackContext):
+    if 'NAME' not in context.user_data:
+        context.user_data['NAME'] = 'TelegramUser'
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     contact_keyboard = KeyboardButton('Завершити чат')
@@ -138,7 +140,10 @@ def operator_handler(update: Update, context: CallbackContext):
     for i in all_filenames:
         f = open(i ,'rb')
         os.remove(i)
-    open(f'media/{chat_id}/links.txt', 'w').close()
+    try:
+        open(f'media/{chat_id}/links.txt', 'w').close()
+    except:
+        pass
     return CHAT
 
 
@@ -347,30 +352,115 @@ def serial_number_handler(update: Update, context: CallbackContext):
     context.user_data['SERIAL_NUMBER'] = update.message.text
     message = update.message.text
     context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-    inline_keyboard = [
-        [
-            InlineKeyboardButton(text='Продовжити',
-                                callback_data='upload'),
-        ],
-    ]
-    inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    contact_keyboard = [[KeyboardButton('Продовжити')],
+                        [KeyboardButton("Зв'язок з оператором")]]
+
+    reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                        resize_keyboard=True)
     update.message.reply_text(
         text=resources.photo_message,
-        reply_markup=inline_buttons
-    )
+        reply_markup=reply_markup)
     context.user_data['HISTORY'] += save_message_to_history(resources.photo_message, 'bot')
     return PHOTOS
+
+
+# def serial_number_handler(update: Update, context: CallbackContext):
+#     if 'HISTORY' not in context.user_data:
+#         context.user_data['HISTORY'] = ''
+#     context.user_data['SERIAL_NUMBER'] = update.message.text
+#     message = update.message.text
+#     context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+#     inline_keyboard = [
+#         [
+#             InlineKeyboardButton(text='Продовжити',
+#                                 callback_data='upload'),
+#         ],
+#     ]
+#     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+#     update.message.reply_text(
+#         text=resources.photo_message,
+#         reply_markup=inline_buttons
+#     )
+#     context.user_data['HISTORY'] += save_message_to_history(resources.photo_message, 'bot')
+#     return PHOTOS
+
+
+# def photos_handler(update: Update, context: CallbackContext):
+#     if 'HISTORY' not in context.user_data:
+#         context.user_data['HISTORY'] = ''
+#     # context.user_data['PHOTOS'] = update.message.photo
+#     # user_id = context.user_data['ID']
+#     try:
+#         request = update.message
+#         user_id = update.message.from_user.id
+#     except AttributeError:
+#         request = update
+#         user_id = update.callback_query.message.chat.id
+#     payload = json.loads(jsonpickle.encode(request))
+#     if not os.path.exists(f'media/{user_id}'):
+#         os.makedirs(f'media/{user_id}')
+#     if payload and payload['photo']:
+#         tele_file = context.bot.get_file(update.message.photo[-1].file_id)
+#         file_path = tele_file['file_path']
+#         file_links = open(f'media/{user_id}/links.txt', 'a')
+#         file_links.write(f'{file_path},')
+#         file_links.close()
+#         tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
+#         return PHOTOS
+#     if payload and payload['document']:
+#         tele_file = context.bot.get_file(update.message.document.file_id)
+#         file_path = str(tele_file['file_path'])
+#         file_links = open(f'media/{user_id}/links.txt', 'a')
+#         file_links.write(f'{file_path},')
+#         file_links.close()
+#         tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
+#         return PHOTOS
+#     else:
+#         try:
+#             request = update.callback_query
+#             all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
+#             if all_filenames:
+#                 update.callback_query.edit_message_text(
+#                     text=update.callback_query.message.text
+#                 )
+#                 context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+#                                 text=resources.reason_message)
+#                 context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
+#                 return REASON
+#             else:
+#                 update.callback_query.edit_message_text(
+#                     text=update.callback_query.message.text
+#                 )
+#                 inline_keyboard = [
+#                     [
+#                         InlineKeyboardButton(text='Продовжити',
+#                                             callback_data='upload'),
+#                     ],
+#                 ]
+#                 inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+#                 context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+#                                 text=resources.photo_error,
+#                                 reply_markup=inline_buttons)
+#                 context.user_data['HISTORY'] += save_message_to_history(resources.photo_error, 'bot')
+#                 return PHOTOS
+#         except AttributeError:
+#             request = update.message
+#             context.bot.send_message(chat_id=update.message.from_user.id,
+#                             text=resources.reason_message)
+#             context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
+#             return REASON
 
 
 def photos_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     # context.user_data['PHOTOS'] = update.message.photo
-    user_id = context.user_data['ID']
     try:
         request = update.message
+        user_id = update.message.from_user.id
     except AttributeError:
         request = update
+        user_id = update.callback_query.message.chat.id
     payload = json.loads(jsonpickle.encode(request))
     if not os.path.exists(f'media/{user_id}'):
         os.makedirs(f'media/{user_id}')
@@ -390,40 +480,30 @@ def photos_handler(update: Update, context: CallbackContext):
         file_links.close()
         tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
         return PHOTOS
-    else:
-        try:
-            request = update.callback_query
-            all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
-            if all_filenames:
-                update.callback_query.edit_message_text(
-                    text=update.callback_query.message.text
-                )
-                context.bot.send_message(chat_id=update.callback_query.message.chat.id,
-                                text=resources.reason_message)
-                context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
-                return REASON
-            else:
-                update.callback_query.edit_message_text(
-                    text=update.callback_query.message.text
-                )
-                inline_keyboard = [
-                    [
-                        InlineKeyboardButton(text='Продовжити',
-                                            callback_data='upload'),
-                    ],
-                ]
-                inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-                context.bot.send_message(chat_id=update.callback_query.message.chat.id,
-                                text=resources.photo_error,
-                                reply_markup=inline_buttons)
-                context.user_data['HISTORY'] += save_message_to_history(resources.photo_error, 'bot')
-                return PHOTOS
-        except AttributeError:
-            request = update.message
-            context.bot.send_message(chat_id=update.message.from_user.id,
-                            text=resources.reason_message)
+    if update.message.text == "Продовжити":
+        all_filenames = [i for i in glob.glob(f'media/{update.message.from_user.id}/*.jpg')]
+        if all_filenames:
+            contact_keyboard = [[KeyboardButton("Зв'язок з оператором")]]
+            reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                                resize_keyboard=True)
+            update.message.reply_text(text=resources.reason_message,
+                                      reply_markup=reply_markup)
             context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
             return REASON
+        else:
+            update.message.reply_text(text=resources.photo_error)
+            context.user_data['HISTORY'] += save_message_to_history(resources.photo_error, 'bot')
+            return PHOTOS
+    else:
+        request = update.message
+        contact_keyboard = [[KeyboardButton("Зв'язок з оператором")]]
+        reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                            resize_keyboard=True)
+        context.bot.send_message(chat_id=update.message.from_user.id,
+                        text=resources.reason_message,
+                        reply_markup=reply_markup)
+        context.user_data['HISTORY'] += save_message_to_history(resources.reason_message, 'bot')
+        return REASON
 
 
 def reason_handler(update: Update, context: CallbackContext):
