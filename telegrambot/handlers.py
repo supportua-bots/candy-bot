@@ -14,6 +14,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 from telegrambot.utils import resources
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
+from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment
 
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
@@ -269,13 +270,29 @@ def name_handler(update: Update, context: CallbackContext):
 def phone_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
+    inline_keyboard = [
+        [InlineKeyboardButton(text='Стиральные машины',
+                                callback_data='category-Stiralki'),
+        InlineKeyboardButton(text='Стирально-сушильные машины',
+                                callback_data='category-Stiralki_Sushilki')],
+        [InlineKeyboardButton(text='Посудомоечные машины',
+                                callback_data='category-Posudomoyki'),
+        InlineKeyboardButton(text='Холодильные и морозильные камеры',
+                                callback_data='category-Holodilnik_Morozilnik')],
+        [InlineKeyboardButton(text='Плиты / встроенные духовые шкафы и варочные поверхности',
+                                callback_data='category-Plity_Duhovye_Shkafi'),
+        InlineKeyboardButton(text='Микроволновые печи',
+                                callback_data='category-Mikrovolnovki')],
+        [InlineKeyboardButton(text='Пылесосы',
+                                callback_data='category-Pylesosy'),
+        InlineKeyboardButton(text='Другое',
+                                callback_data='category-Drugoe')],
+    ]
+    reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     try:
         context.user_data['PHONE'] = update.message.contact.phone_number
         message = update.message.contact.phone_number
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-        contact_keyboard = KeyboardButton("Зв'язок з оператором")
-        reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
-                                            resize_keyboard=True)
         update.message.reply_text(
             text=resources.category_message,
             reply_markup=reply_markup
@@ -287,9 +304,6 @@ def phone_handler(update: Update, context: CallbackContext):
             context.user_data['PHONE'] = update.message.text
             message = update.message.text
             context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-            contact_keyboard = KeyboardButton("Зв'язок з оператором")
-            reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
-                                                resize_keyboard=True)
             update.message.reply_text(
                 text=resources.category_message,
                 reply_markup=reply_markup
@@ -307,9 +321,12 @@ def phone_handler(update: Update, context: CallbackContext):
 def category_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
-    context.user_data['CATEGORY'] = update.message.text
-    message = update.message.text
-    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+    context.user_data['CATEGORY'] = update.callback_query.data.split('-')[1]
+    choice = choice_definer(update)
+    context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+    update.callback_query.edit_message_text(
+        text=f'{update.callback_query.message.text}\nВаш вибір: {choice}'
+    )
     inline_keyboard = [
         [
             InlineKeyboardButton(text='Candy',
@@ -323,9 +340,9 @@ def category_handler(update: Update, context: CallbackContext):
         ],
     ]
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-    update.message.reply_text(
-        text=resources.brand_message,
-        reply_markup=inline_buttons
+    context.bot.send_message(chat_id=update.callback_query.message.chat.id,
+                            text=resources.brand_message,
+                            reply_markup=inline_buttons
     )
     context.user_data['HISTORY'] += save_message_to_history(resources.brand_message, 'bot')
     return ConversationHandler.END
@@ -340,8 +357,12 @@ def brand_handler(update: Update, context: CallbackContext):
     update.callback_query.edit_message_text(
         text=f'{update.callback_query.message.text}\nВаш вибір: {choice}'
     )
+    contact_keyboard = KeyboardButton("Зв'язок з оператором")
+    reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
+                                        resize_keyboard=True)
     context.bot.send_message(chat_id=update.callback_query.message.chat.id,
-                    text=resources.serial_number_message)
+                    text=resources.serial_number_message,
+                    reply_markup=reply_markup)
     context.user_data['HISTORY'] += save_message_to_history(resources.serial_number_message, 'bot')
     return SERIAL_NUMBER
 
@@ -349,19 +370,30 @@ def brand_handler(update: Update, context: CallbackContext):
 def serial_number_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
-    context.user_data['SERIAL_NUMBER'] = update.message.text
     message = update.message.text
-    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-    contact_keyboard = [[KeyboardButton('Продовжити')],
-                        [KeyboardButton("Зв'язок з оператором")]]
+    if len(message) < 17 and message.isdecimal():
+        context.user_data['SERIAL_NUMBER'] = update.message.text
+        context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+        contact_keyboard = [[KeyboardButton('Продовжити')],
+                            [KeyboardButton("Зв'язок з оператором")]]
 
-    reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
-                                        resize_keyboard=True)
-    update.message.reply_text(
-        text=resources.photo_message,
-        reply_markup=reply_markup)
-    context.user_data['HISTORY'] += save_message_to_history(resources.photo_message, 'bot')
-    return PHOTOS
+        reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                            resize_keyboard=True)
+        update.message.reply_text(
+            text=resources.photo_message,
+            reply_markup=reply_markup)
+        context.user_data['HISTORY'] += save_message_to_history(resources.photo_message, 'bot')
+        return PHOTOS
+    else:
+        context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+        contact_keyboard = [[KeyboardButton("Зв'язок з оператором")]]
+        reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
+                                            resize_keyboard=True)
+        update.message.reply_text(
+            text=resources.serial_number_error,
+            reply_markup=reply_markup)
+        context.user_data['HISTORY'] += save_message_to_history(resources.serial_number_error, 'bot')
+        return SERIAL_NUMBER
 
 
 # def serial_number_handler(update: Update, context: CallbackContext):
@@ -512,11 +544,12 @@ def reason_handler(update: Update, context: CallbackContext):
     context.user_data['REASON'] = update.message.text
     message = update.message.text
     context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-    list_of_dates = workdays(datetime.now(), datetime.now() + timedelta(days=30))
-    beautified_dates = [(x.strftime('%d-%m-%Y'), x.strftime('%a, %d %b')) for x in list_of_dates]
+    list_of_dates = schedule_matcher()[:20]
+    beautified_dates = [(f'date%{x[0]}', datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b')) for x in list_of_dates]
     sorted_dates = list(divide_chunks(beautified_dates, 4))
     inline_keyboard = [[InlineKeyboardButton(text=x[1],
-                                callback_data=f'date%{x[0]}') for x in item] for item in sorted_dates]
+                                callback_data=f'{x[0]}') for x in item] for item in sorted_dates]
+    print(inline_keyboard)
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     update.message.reply_text(
         text=resources.date_message,
@@ -529,14 +562,21 @@ def reason_handler(update: Update, context: CallbackContext):
 def date_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
+    print(update.callback_query.data)
     date = update.callback_query.data.split('%')[1]
     context.user_data['DATE'] = date
     context.user_data['HISTORY'] += save_message_to_history(date, 'user')
-    inline_keyboard = [[InlineKeyboardButton(text=x,
-                                callback_data=f'time%{x}') for x in item] for item in resources.time_chunks]
+    choosed_item = []
+    list_of_dates = schedule_matcher()[:20]
+    for dates in list_of_dates:
+        if dates[0] == date:
+            choosed_item = dates
+    sorted_dates = list(divide_chunks(choosed_item[1], 2))
+    inline_keyboard = [[InlineKeyboardButton(text=x[0],
+                                callback_data=f'time%{x[0]}') for x in item] for item in sorted_dates]
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     update.callback_query.edit_message_text(
-        text=update.callback_query.data.split('%')[1]
+        text=date
     )
     context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                     text=resources.time_message,
@@ -579,6 +619,19 @@ def time_handler(update: Update, context: CallbackContext):
         text += f'Дата: {context.user_data["DATE"]}\n'
     if 'TIME' in context.user_data.keys():
         text += f'Час: {context.user_data["TIME"]}\n'
+    datetime_string = f'{context.user_data["DATE"]} {context.user_data["TIME"]}'
+    beautified_date = datetime.strptime(datetime_string, '%Y-%m-%d %H:%M')
+    deal_id = add_to_crm(category=context.user_data["CATEGORY"],
+               reason=context.user_data["REASON"],
+               phone=context.user_data["PHONE"],
+               brand=context.user_data["BRAND"],
+               serial=context.user_data["SERIAL_NUMBER"],
+               name=context.user_data['NAME'],
+               date=context.user_data["DATE"],
+               time=beautified_date)
+    timestamp_start = datetime.timestamp(beautified_date)
+    timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
+    add_event(timestamp_start, timestamp_end, f'Вiдео дзiнок з {context.user_data["NAME"]}', deal_id)
     reply_markup = ReplyKeyboardRemove()
     context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                             text=text,
@@ -594,5 +647,10 @@ def time_handler(update: Update, context: CallbackContext):
         f = open(i ,'rb')
         # context.bot.send_document(chat_id=update.callback_query.message.chat.id, document=f)
         os.remove(i)
+    with open(f'media/{update.callback_query.message.chat.id}/links.txt', 'r') as links:
+        text = links.read()
+        for link in text.split(','):
+            if link != '':
+                add_comment(deal_id, link)
     open(f'media/{update.callback_query.message.chat.id}/links.txt', 'w').close()
     return ConversationHandler.END

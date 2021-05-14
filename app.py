@@ -2,6 +2,7 @@ from flask import Flask, request, Response, json, jsonify
 from multiprocessing import Process
 from telegrambot import main as tgbot
 from jivochat import main as jivo
+from vibertelebot import main as vbbot
 
 
 app = Flask(__name__)
@@ -32,6 +33,12 @@ def jivochat_endpoint_viber():
     )
     return response
 
+
+@app.route('/viber', methods=['POST'])
+def viber_endpoint():
+    source = 'viber'
+    vbbot.main(request)
+    return Response(status=200)
 
 
 def server_launch():
