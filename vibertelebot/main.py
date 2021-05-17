@@ -23,7 +23,7 @@ load_dotenv(dotenv_path)
 
 viber = Api(BotConfiguration(
     name='candyua',
-    avatar='https://i.ibb.co/SPXsFsp/image.jpg',
+    avatar=kb.LOGO,
     auth_token=os.getenv('VIBER_TOKEN')
 ))
 

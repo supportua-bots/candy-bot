@@ -1,5 +1,7 @@
 from vibertelebot.utils.tools import keyboard_consctructor
 
+LOGO = 'https://i.ibb.co/VNpXPB5/1.png'
+
 category_keyboard = keyboard_consctructor([
             ('Стиральные машины', 'category-Stiralki', ''),
             ('Стирально-сушильные машины', 'category-Stiralki_Sushilki', ''),
