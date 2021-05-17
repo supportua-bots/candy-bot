@@ -4,12 +4,12 @@ import json
 import jsonpickle
 import time
 import requests
-import vibertelebot.utils.additional_keyboard as kb
+import vibertelebot.utils.additional_keyboard as addkb
 from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
 from datetime import date, datetime, timedelta
-from telegrambot.utils import resources
+from textkeyboards import text as resources
 from vibertelebot.utils.tools import keyboard_consctructor, save_message_to_history, workdays, divide_chunks
 from viberbot.api.messages.text_message import TextMessage
 from viberbot.api.messages.contact_message import ContactMessage
@@ -19,6 +19,7 @@ from viberbot.api.messages.picture_message import PictureMessage
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
 from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment
+from textskeyboards import viberkeyboards as kb
 
 
 
@@ -47,15 +48,7 @@ def user_message_handler(viber, viber_request):
     if isinstance(message, ContactMessage):
         # Handling reply after user shared his contact infromation
         tracking_data['PHONE'] = message.contact.phone_number
-        keyboard = [('Стиральные машины', 'category-Stiralki', ''),
-                    ('Стирально-сушильные машины', 'category-Stiralki_Sushilki', ''),
-                    ('Посудомоечные машины', 'category-Posudomoyki', ''),
-                    ('Холодильные и морозильные камеры', 'category-Holodilnik_Morozilnik', ''),
-                    ('Плиты / встроенные духовые шкафы и варочные поверхности', 'category-Plity_Duhovye_Shkafi', ''),
-                    ('Микроволновые печи', 'category-Mikrovolnovki', ''),
-                    ('Пылесосы', 'category-Pylesosy', ''),
-                    ('Другое', 'category-Drugoe', '')]
-        reply_keyboard = keyboard_consctructor(keyboard)
+        reply_keyboard = keyboard_consctructor(kb.category_keyboard)
         reply_text = resources.category_message
         tracking_data['STAGE'] = 'category'
         tracking_data = json.dumps(tracking_data)
@@ -89,31 +82,25 @@ def user_message_handler(viber, viber_request):
                 jivochat.send_message(chat_id, tracking_data['NAME'],
                                       text,
                                       'viber')
-            keyboard = [('Завершити чат', 'end_chat', '')]
-            reply_keyboard = keyboard_consctructor(keyboard)
+            reply_keyboard = keyboard_consctructor(kb.end_chat_keyboard)
 
         else:
             if text == 'menu':
-                keyboard = [('Запис на відео чат', 'video', ''),
-                            ("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.menu_keyboard)
                 reply_text = resources.greeting_message
             elif text == 'end_chat':
-                keyboard = [('Запис на відео чат', 'video', ''),
-                            ("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
                 jivochat.send_message(chat_id,
                                       tracking_data['NAME'],
                                       jivosource.user_ended_chat,
                                       'viber')
                 answer = [TextMessage(text=resources.chat_ending)]
                 viber.send_messages(chat_id, answer)
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.menu_keyboard)
                 reply_text = resources.greeting_message
                 time.sleep(1)
             elif text == 'operator':
                 tracking_data['CHAT_MODE'] = 'on'
-                keyboard = [('Завершити чат', 'end_chat', '')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.end_chat_keyboard)
                 reply_text = resources.operator_message
                 with open(f'media/{chat_id}/history.txt', 'r') as f:
                     history = f.read()
@@ -141,41 +128,31 @@ def user_message_handler(viber, viber_request):
                 except:
                     pass
             elif text == 'video':
-                keyboard = [('Меню', 'menu', 'https://i.ibb.co/Kbm7kvb/image.png'),
-                            ('Продовжити', 'continue', 'https://i.ibb.co/9Vs7RC8/image.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.confirmation_keyboard)
                 reply_text = resources.video_acceptance_message
             elif text == 'continue':
-                keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
                 reply_text = resources.name_message
                 tracking_data['STAGE'] = 'name'
             elif text[:5] == 'brand':
                 tracking_data['BRAND'] = text.split('-')[1]
-                keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
                 reply_text = resources.serial_number_message
                 tracking_data['STAGE'] = 'serial'
             elif text[:8] == 'category':
                 tracking_data['CATEGORY'] = text.split('-')[1]
-                keyboard = [('Candy', 'brand-Candy', 'https://i.ibb.co/Jjw3XMc/Candy.png'),
-                            ('Hoover', 'brand-Hoover', 'https://i.ibb.co/TbcgHGC/Hoover.png'),
-                            ('Rosieres', 'brand-Rosieres', 'https://i.ibb.co/s32RqHn/Rosieres.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.brand_keyboard)
                 reply_text = resources.brand_message
                 tracking_data['STAGE'] = 'menu'
             elif text == 'upload':
                 all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
-                keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png'),
-                            ("Продовжити", 'upload', 'https://i.ibb.co/9Vs7RC8/image.png'),]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.upload_keyboard)
                 if all_filenames:
                     reply_text = resources.reason_message
                     tracking_data['STAGE'] = 'reason'
-                    keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
+                    keyboard = kb.opeartor_keyboard
                 else:
-                    keyboard = [("Продовжити", 'upload', 'https://i.ibb.co/9Vs7RC8/image.png'),
-                                ("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
+                    keyboard = kb.upload_keyboard
                     reply_text = resources.photo_error
                 reply_keyboard = keyboard_consctructor(keyboard)
             elif text[:4] == 'date':
@@ -223,8 +200,7 @@ def user_message_handler(viber, viber_request):
                 timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
                 add_event(timestamp_start, timestamp_end, f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
                 tracking_data['HISTORY'] = ''
-                keyboard = [('Меню', 'menu', 'https://i.ibb.co/Kbm7kvb/image.png')]
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard_consctructor(kb.return_keyboard)
                 reply_text = resources.final_message
                 all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
                 for i in all_filenames:
@@ -240,38 +216,27 @@ def user_message_handler(viber, viber_request):
             else:
                 if tracking_data['STAGE'] == 'name':
                     tracking_data['NAME'] = text
-                    reply_keyboard = kb.SHARE_PHONE_KEYBOARD
+                    reply_keyboard = addkb.SHARE_PHONE_KEYBOARD
                     reply_text = resources.phone_message
                     tracking_data['STAGE'] = 'phone'
                 elif tracking_data['STAGE'] == 'phone':
                     if text[:3] == '380' and len(text) == 12:
                         tracking_data['PHONE'] = text
                         # keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                        keyboard = [('Стиральные машины', 'category-Stiralki', ''),
-                                    ('Стирально-сушильные машины', 'category-Stiralki_Sushilki', ''),
-                                    ('Посудомоечные машины', 'category-Posudomoyki', ''),
-                                    ('Холодильные и морозильные камеры', 'category-Holodilnik_Morozilnik', ''),
-                                    ('Плиты / встроенные духовые шкафы и варочные поверхности', 'category-Plity_Duhovye_Shkafi', ''),
-                                    ('Микроволновые печи', 'category-Mikrovolnovki', ''),
-                                    ('Пылесосы', 'category-Pylesosy', ''),
-                                    ('Другое', 'category-Drugoe', '')]
-                        reply_keyboard = keyboard_consctructor(keyboard)
+                        reply_keyboard = keyboard_consctructor(kb.category_keyboard)
                         reply_text = resources.category_message
                         tracking_data['STAGE'] = 'category'
                     else:
-                        reply_keyboard = kb.SHARE_PHONE_KEYBOARD
+                        reply_keyboard = addkb.SHARE_PHONE_KEYBOARD
                         reply_text = resources.phone_error
                 elif tracking_data['STAGE'] == 'serial':
                     if len(text) < 17 and text.isdecimal():
                         tracking_data['SERIAL_NUMBER'] = text
-                        keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png'),
-                                    ("Продовжити", 'upload', 'https://i.ibb.co/9Vs7RC8/image.png'),]
-                        reply_keyboard = keyboard_consctructor(keyboard)
+                        reply_keyboard = keyboard_consctructor(kb.upload_keyboard)
                         reply_text = resources.photo_message
                         tracking_data['STAGE'] = 'category'
                     else:
-                        keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                        reply_keyboard = keyboard_consctructor(keyboard)
+                        reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
                         reply_text = resources.serial_number_error
                         tracking_data['STAGE'] = 'serial'
                 elif tracking_data['STAGE'] == 'reason':
@@ -282,8 +247,7 @@ def user_message_handler(viber, viber_request):
                     reply_text = resources.date_message
                     tracking_data['STAGE'] = 'menu'
                 else:
-                    keyboard = [('Меню', 'menu', 'https://i.ibb.co/Kbm7kvb/image.png')]
-                    reply_keyboard = keyboard_consctructor(keyboard)
+                    reply_keyboard = keyboard_consctructor(kb.return_keyboard)
                     reply_text = resources.echo_message_viber
             save_message_to_history(reply_text, 'bot', chat_id)
             counter = 0

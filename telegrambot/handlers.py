@@ -11,10 +11,11 @@ from datetime import date, datetime, timedelta
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Update,
                         ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton)
 from telegram.ext import CallbackContext, ConversationHandler
-from telegrambot.utils import resources
+from textkeyboards import text as resources
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
 from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment
+from textskeyboards import telegramkeyboards as kb
 
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
@@ -69,10 +70,10 @@ def menu_handler(update: Update, context: CallbackContext):
         context.user_data['HISTORY'] = ''
     inline_keyboard = [
         [
-            InlineKeyboardButton(text='Запис на відео чат',
+            InlineKeyboardButton(text=kb.menu_keyboard[0],
                                 callback_data='video')
         ],[
-            InlineKeyboardButton(text="Зв'язок з оператором",
+            InlineKeyboardButton(text=kb.menu_keyboard[1],
                                 callback_data='operator'),
         ],
     ]
@@ -163,10 +164,10 @@ def chat_handler(update: Update, context: CallbackContext):
     if reply == 'Завершити чат':
         inline_keyboard = [
             [
-                InlineKeyboardButton(text='Запис на відео чат',
+                InlineKeyboardButton(text=kb.menu_keyboard[0],
                                     callback_data='video')
             ],[
-                InlineKeyboardButton(text="Зв'язок з оператором",
+                InlineKeyboardButton(text=kb.menu_keyboard[1],
                                     callback_data='operator'),
             ],
         ]
@@ -212,10 +213,10 @@ def video_handler(update: Update, context: CallbackContext):
     context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
     inline_keyboard = [
         [
-            InlineKeyboardButton(text='Продовжити',
+            InlineKeyboardButton(text=kb.continue_keyboard[0],
                                 callback_data='continue')
         ],[
-            InlineKeyboardButton(text='Меню',
+            InlineKeyboardButton(text=kb.continue_keyboard[1],
                                 callback_data='start'),
         ],
     ]
@@ -253,9 +254,9 @@ def name_handler(update: Update, context: CallbackContext):
     context.user_data['NAME'] = update.message.text
     message = update.message.text
     context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-    contact_keyboard = [[KeyboardButton('Подiлитись номером',
+    contact_keyboard = [[KeyboardButton(kb.photo_keyboard[0],
                                         request_contact=True,)],
-                        [KeyboardButton("Зв'язок з оператором")]]
+                        [KeyboardButton(kb.photo_keyboard[0])]]
 
     reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
                                         resize_keyboard=True,
@@ -271,21 +272,21 @@ def phone_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     inline_keyboard = [
-        [InlineKeyboardButton(text='Стиральные машины',
+        [InlineKeyboardButton(text=kb.category_keyboard[0],
                                 callback_data='category-Stiralki'),
-        InlineKeyboardButton(text='Стирально-сушильные машины',
+        InlineKeyboardButton(text=kb.category_keyboard[1],
                                 callback_data='category-Stiralki_Sushilki')],
-        [InlineKeyboardButton(text='Посудомоечные машины',
+        [InlineKeyboardButton(text=kb.category_keyboard[2],
                                 callback_data='category-Posudomoyki'),
-        InlineKeyboardButton(text='Холодильные и морозильные камеры',
+        InlineKeyboardButton(text=kb.category_keyboard[3],
                                 callback_data='category-Holodilnik_Morozilnik')],
-        [InlineKeyboardButton(text='Плиты / встроенные духовые шкафы и варочные поверхности',
+        [InlineKeyboardButton(text=kb.category_keyboard[4],
                                 callback_data='category-Plity_Duhovye_Shkafi'),
-        InlineKeyboardButton(text='Микроволновые печи',
+        InlineKeyboardButton(text=kb.category_keyboard[5],
                                 callback_data='category-Mikrovolnovki')],
-        [InlineKeyboardButton(text='Пылесосы',
+        [InlineKeyboardButton(text=kb.category_keyboard[6],
                                 callback_data='category-Pylesosy'),
-        InlineKeyboardButton(text='Другое',
+        InlineKeyboardButton(text=kb.category_keyboard[7],
                                 callback_data='category-Drugoe')],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
@@ -329,13 +330,13 @@ def category_handler(update: Update, context: CallbackContext):
     )
     inline_keyboard = [
         [
-            InlineKeyboardButton(text='Candy',
+            InlineKeyboardButton(text=kb.brand_keyboard[0],
                                 callback_data='brand-Candy')
         ],[
-            InlineKeyboardButton(text="Hoover",
+            InlineKeyboardButton(text=kb.brand_keyboard[1],
                                 callback_data='brand-Hoover'),
         ],[
-            InlineKeyboardButton(text="Rosieres",
+            InlineKeyboardButton(text=kb.brand_keyboard[2],
                                 callback_data='brand-Rosieres'),
         ],
     ]
@@ -374,8 +375,8 @@ def serial_number_handler(update: Update, context: CallbackContext):
     if len(message) < 17 and message.isdecimal():
         context.user_data['SERIAL_NUMBER'] = update.message.text
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-        contact_keyboard = [[KeyboardButton('Продовжити')],
-                            [KeyboardButton("Зв'язок з оператором")]]
+        contact_keyboard = [[KeyboardButton(kb.phone_keyboard[0])],
+                            [KeyboardButton(kb.phone_keyboard[1])]]
 
         reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
                                             resize_keyboard=True)

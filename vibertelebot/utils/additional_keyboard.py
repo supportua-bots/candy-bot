@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import date, datetime, timedelta
-
+from textskeyboards import viberkeyboards as kb
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
@@ -21,11 +21,11 @@ SHARE_PHONE_KEYBOARD = {
             "BgColor": MAIN_COLOR,
             "BgLoop": True,
             "ActionType": "reply",
-            "ActionBody": "operator",
+            "ActionBody": kb.phone_keyboard[0][1],
             "ReplyType": "message",
-            "Text": "Зв'язок з оператором",
-            "TextOpacity": 0,
-            "Image": 'https://i.ibb.co/6ZZqWPM/image.png'
+            "Text": kb.phone_keyboard[0][0],
+            # "TextOpacity": 0,
+            "Image": kb.phone_keyboard[0][2]
         },
         {
             "Columns": 3,
@@ -33,11 +33,11 @@ SHARE_PHONE_KEYBOARD = {
             "BgColor": MAIN_COLOR,
             "BgLoop": True,
             "ActionType": "share-phone",
-            "ActionBody": "phone_reply",
+            "ActionBody": kb.phone_keyboard[1][1],
             "ReplyType": "message",
-            "Text": "Подiлитись номером",
-            "TextOpacity": 0,
-            "Image": 'https://i.ibb.co/KzHgfzN/image.png'
+            "Text": kb.phone_keyboard[1][0],
+            # "TextOpacity": 0,
+            "Image": kb.phone_keyboard[1][2]
         },
     ]
 }

@@ -11,13 +11,16 @@ dotenv_path = os.path.join(Path(__file__).parent.parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
 
 # Loading Environment variables
-URL = os.getenv("URL_HOOK")
+# URL = os.getenv("URL_HOOK")
+URL = 'http://es353.mirohost.net'
 
 logger = logging.getLogger()
 logger.setLevel('DEBUG')
 
 # Setting up webhook parameters
-auth_token = os.getenv("VIBER_TOKEN")
+# auth_token = os.getenv("VIBER_TOKEN")
+auth_token = '4d59721b0227d2f3-c6f8195adae99e56-f906cda2639c07b0'
+
 hook = 'https://chatapi.viber.com/pa/set_webhook'
 headers = {'X-Viber-Auth-Token': auth_token}
 body = dict(url=URL + '/viber',
