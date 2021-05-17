@@ -375,8 +375,8 @@ def serial_number_handler(update: Update, context: CallbackContext):
     if len(message) < 17 and message.isdecimal():
         context.user_data['SERIAL_NUMBER'] = update.message.text
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-        contact_keyboard = [[KeyboardButton(kb.phone_keyboard[0])],
-                            [KeyboardButton(kb.phone_keyboard[1])]]
+        contact_keyboard = [[KeyboardButton(kb.photo_keyboard[1])],
+                            [KeyboardButton(kb.photo_keyboard[0])]]
 
         reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
                                             resize_keyboard=True)
