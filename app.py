@@ -42,7 +42,7 @@ def viber_endpoint():
 
 
 def server_launch():
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=443)
 
 
 if __name__ == '__main__':
