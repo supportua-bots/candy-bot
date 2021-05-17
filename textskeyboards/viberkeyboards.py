@@ -3,14 +3,14 @@ from vibertelebot.utils.tools import keyboard_consctructor
 LOGO = 'https://i.ibb.co/VNpXPB5/1.png'
 
 category_keyboard = keyboard_consctructor([
-            ('Стиральные машины', 'category-Stiralki', ''),
-            ('Стирально-сушильные машины', 'category-Stiralki_Sushilki', ''),
-            ('Посудомоечные машины', 'category-Posudomoyki', ''),
-            ('Холодильные и морозильные камеры', 'category-Holodilnik_Morozilnik', ''),
-            ('Плиты / встроенные духовые шкафы и варочные поверхности', 'category-Plity_Duhovye_Shkafi', ''),
-            ('Микроволновые печи', 'category-Mikrovolnovki', ''),
-            ('Пылесосы', 'category-Pylesosy', ''),
-            ('Другое', 'category-Drugoe', '')
+            ('Пральні машини', 'category-Stiralki', ''),
+            ('Прально-сушильні машини', 'category-Stiralki_Sushilki', ''),
+            ('Посудомийні машини', 'category-Posudomoyki', ''),
+            ('Холодильні та морозильні камери', 'category-Holodilnik_Morozilnik', ''),
+            ('Плити / вбудовані духові шафи та варочні поверхні', 'category-Plity', ''),
+            ('Мікрохвильові пічі', 'category-Mikrovolnovki', ''),
+            ('Пилососи', 'category-Pylesosy', ''),
+            ('Інше', 'category-Drugoe', '')
             ])
 
 end_chat_keyboard = keyboard_consctructor([

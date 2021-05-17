@@ -254,9 +254,9 @@ def name_handler(update: Update, context: CallbackContext):
     context.user_data['NAME'] = update.message.text
     message = update.message.text
     context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-    contact_keyboard = [[KeyboardButton(kb.photo_keyboard[1],
+    contact_keyboard = [[KeyboardButton(kb.phone_keyboard[0],
                                         request_contact=True,)],
-                        [KeyboardButton(kb.photo_keyboard[0])]]
+                        [KeyboardButton(kb.phone_keyboard[1])]]
 
     reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
                                         resize_keyboard=True,
