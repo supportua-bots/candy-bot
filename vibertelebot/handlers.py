@@ -48,7 +48,7 @@ def user_message_handler(viber, viber_request):
     if isinstance(message, ContactMessage):
         # Handling reply after user shared his contact infromation
         tracking_data['PHONE'] = message.contact.phone_number
-        reply_keyboard = keyboard_consctructor(kb.category_keyboard)
+        reply_keyboard = kb.category_keyboard
         reply_text = resources.category_message
         tracking_data['STAGE'] = 'category'
         tracking_data = json.dumps(tracking_data)
@@ -82,11 +82,11 @@ def user_message_handler(viber, viber_request):
                 jivochat.send_message(chat_id, tracking_data['NAME'],
                                       text,
                                       'viber')
-            reply_keyboard = keyboard_consctructor(kb.end_chat_keyboard)
+            reply_keyboard = kb.end_chat_keyboard
 
         else:
             if text == 'menu':
-                reply_keyboard = keyboard_consctructor(kb.menu_keyboard)
+                reply_keyboard = kb.menu_keyboard
                 reply_text = resources.greeting_message
             elif text == 'end_chat':
                 jivochat.send_message(chat_id,
@@ -95,12 +95,12 @@ def user_message_handler(viber, viber_request):
                                       'viber')
                 answer = [TextMessage(text=resources.chat_ending)]
                 viber.send_messages(chat_id, answer)
-                reply_keyboard = keyboard_consctructor(kb.menu_keyboard)
+                reply_keyboard = kb.menu_keyboard
                 reply_text = resources.greeting_message
                 time.sleep(1)
             elif text == 'operator':
                 tracking_data['CHAT_MODE'] = 'on'
-                reply_keyboard = keyboard_consctructor(kb.end_chat_keyboard)
+                reply_keyboard = kb.end_chat_keyboard
                 reply_text = resources.operator_message
                 with open(f'media/{chat_id}/history.txt', 'r') as f:
                     history = f.read()
@@ -128,25 +128,25 @@ def user_message_handler(viber, viber_request):
                 except:
                     pass
             elif text == 'video':
-                reply_keyboard = keyboard_consctructor(kb.confirmation_keyboard)
+                reply_keyboard = kb.confirmation_keyboard
                 reply_text = resources.video_acceptance_message
             elif text == 'continue':
-                reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
+                reply_keyboard = kb.opeartor_keyboard
                 reply_text = resources.name_message
                 tracking_data['STAGE'] = 'name'
             elif text[:5] == 'brand':
                 tracking_data['BRAND'] = text.split('-')[1]
-                reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
+                reply_keyboard = kb.opeartor_keyboard
                 reply_text = resources.serial_number_message
                 tracking_data['STAGE'] = 'serial'
             elif text[:8] == 'category':
                 tracking_data['CATEGORY'] = text.split('-')[1]
-                reply_keyboard = keyboard_consctructor(kb.brand_keyboard)
+                reply_keyboard = kb.brand_keyboard
                 reply_text = resources.brand_message
                 tracking_data['STAGE'] = 'menu'
             elif text == 'upload':
                 all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
-                reply_keyboard = keyboard_consctructor(kb.upload_keyboard)
+                reply_keyboard = kb.upload_keyboard
                 if all_filenames:
                     reply_text = resources.reason_message
                     tracking_data['STAGE'] = 'reason'
@@ -154,7 +154,7 @@ def user_message_handler(viber, viber_request):
                 else:
                     keyboard = kb.upload_keyboard
                     reply_text = resources.photo_error
-                reply_keyboard = keyboard_consctructor(keyboard)
+                reply_keyboard = keyboard
             elif text[:4] == 'date':
                 choosed_date = text.split('%')[1]
                 tracking_data['DATE'] = choosed_date
@@ -200,7 +200,7 @@ def user_message_handler(viber, viber_request):
                 timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
                 add_event(timestamp_start, timestamp_end, f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
                 tracking_data['HISTORY'] = ''
-                reply_keyboard = keyboard_consctructor(kb.return_keyboard)
+                reply_keyboard = kb.return_keyboard
                 reply_text = resources.final_message
                 all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
                 for i in all_filenames:
@@ -223,7 +223,7 @@ def user_message_handler(viber, viber_request):
                     if text[:3] == '380' and len(text) == 12:
                         tracking_data['PHONE'] = text
                         # keyboard = [("Зв'язок з оператором", 'operator', 'https://i.ibb.co/6ZZqWPM/image.png')]
-                        reply_keyboard = keyboard_consctructor(kb.category_keyboard)
+                        reply_keyboard = kb.category_keyboard
                         reply_text = resources.category_message
                         tracking_data['STAGE'] = 'category'
                     else:
@@ -232,11 +232,11 @@ def user_message_handler(viber, viber_request):
                 elif tracking_data['STAGE'] == 'serial':
                     if len(text) < 17 and text.isdecimal():
                         tracking_data['SERIAL_NUMBER'] = text
-                        reply_keyboard = keyboard_consctructor(kb.upload_keyboard)
+                        reply_keyboard = kb.upload_keyboard
                         reply_text = resources.photo_message
                         tracking_data['STAGE'] = 'category'
                     else:
-                        reply_keyboard = keyboard_consctructor(kb.opeartor_keyboard)
+                        reply_keyboard = kb.opeartor_keyboard
                         reply_text = resources.serial_number_error
                         tracking_data['STAGE'] = 'serial'
                 elif tracking_data['STAGE'] == 'reason':
@@ -247,7 +247,7 @@ def user_message_handler(viber, viber_request):
                     reply_text = resources.date_message
                     tracking_data['STAGE'] = 'menu'
                 else:
-                    reply_keyboard = keyboard_consctructor(kb.return_keyboard)
+                    reply_keyboard = kb.return_keyboard
                     reply_text = resources.echo_message_viber
             save_message_to_history(reply_text, 'bot', chat_id)
             counter = 0

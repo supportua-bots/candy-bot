@@ -50,7 +50,7 @@ def main(request):
         logger.warn("client failed receiving message. failure: {viber_request}")
     elif isinstance(viber_request, ViberConversationStartedRequest):
         # First touch, sending to user keyboard with phone sharing button
-        reply_keyboard = keyboard_consctructor(kb.menu_keyboard)
+        reply_keyboard = kb.menu_keyboard
         viber.send_messages(viber_request.user.id, [
             TextMessage(
                 text=resources.greeting_message,
