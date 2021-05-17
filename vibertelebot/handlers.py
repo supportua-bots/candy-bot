@@ -9,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
 from datetime import date, datetime, timedelta
-from textkeyboards import text as resources
+from textskeyboards import text as resources
 from vibertelebot.utils.tools import keyboard_consctructor, save_message_to_history, workdays, divide_chunks
 from viberbot.api.messages.text_message import TextMessage
 from viberbot.api.messages.contact_message import ContactMessage

@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Update,
                         ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton)
 from telegram.ext import CallbackContext, ConversationHandler
-from textkeyboards import text as resources
+from textskeyboards import text as resources
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
 from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment

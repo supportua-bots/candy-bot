@@ -13,7 +13,7 @@ from viberbot.api.viber_requests import (ViberFailedRequest,
 from loguru import logger
 from vibertelebot.handlers import user_message_handler
 from vibertelebot.utils.tools import keyboard_consctructor
-from textkeyboards import text as resources
+from textskeyboards import text as resources
 from textskeyboards import viberkeyboards as kb
 
 
