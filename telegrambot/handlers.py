@@ -371,8 +371,8 @@ def brand_handler(update: Update, context: CallbackContext):
 def serial_number_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
-    message = update.message.text
-    if len(message) < 17 and message.isdecimal():
+    message = update.message.text.replace(' ', '')
+    if len(message) < 17 and message.isdecimal() and message[0] == '3':
         context.user_data['SERIAL_NUMBER'] = update.message.text
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
         contact_keyboard = [[KeyboardButton(kb.photo_keyboard[1])],

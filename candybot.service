@@ -1,0 +1,14 @@
+[Unit]
+Description=CandyBot
+After=network.target
+
+[Service]
+User=chatbots2021q
+Group=chatbots2021q
+
+WorkingDirectory=/var/www/chatbots2021/candy-bot
+ExecStart=/var/www/chatbots2021/candy-bot/env/bin/python /var/www/chatbots2021/candy-bot/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

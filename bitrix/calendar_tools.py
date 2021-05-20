@@ -64,6 +64,7 @@ def schedule_matcher():
     static_schedule = time_table_creator()
     # print(static_schedule)
     event_list = calendar_grabber()
+    empty_dates = []
     for day in static_schedule:
         delete_items = []
         for period in static_schedule[day]:
@@ -72,6 +73,10 @@ def schedule_matcher():
                     delete_items.append(period)
         for item in delete_items:
             static_schedule[day].remove(item)
+        if not static_schedule[day]:
+            empty_dates.append(day)
+    for item in empty_dates:
+        print(static_schedule.pop(item, None))
     available_dates = sorted(static_schedule.items())
     return available_dates
 
@@ -79,7 +84,7 @@ def schedule_matcher():
 @logger.catch
 def add_event(start, end, name, deal_id):
     link = f'https://supportua.bitrix24.ua/crm/deal/details/{deal_id}/'
-    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=user&ownerId=2067&from_ts={int(start)}&to_ts={int(end)}&section=457&name={name}&is_meeting=Y&attendees[]=355&description={link}'
+    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=user&ownerId=2067&from_ts={int(start)}&to_ts={int(end)}&section=457&name={name}&is_meeting=Y&attendees[]=355&attendees[]=78&attendees[]=383&attendees[]=178&attendees[]=253&description={link}'
     x = requests.get(SEND_URL)
 
 
@@ -112,7 +117,8 @@ def add_comment(deal_id, comment):
     x = requests.get(url)
     return x.json()['result']
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    print(schedule_matcher())
 #     MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/qfhlg4mpu5jyz7kn/entity.item.add.json'
 #     with open("photo2870.jpg", "rb") as image_file:
 #         encoded_string = base64.b64encode(image_file.read())

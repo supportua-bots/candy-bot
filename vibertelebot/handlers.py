@@ -230,15 +230,19 @@ def user_message_handler(viber, viber_request):
                         reply_keyboard = addkb.SHARE_PHONE_KEYBOARD
                         reply_text = resources.phone_error
                 elif tracking_data['STAGE'] == 'serial':
-                    if len(text) < 17 and text.isdecimal():
+                    text = text.replace(' ', '')
+                    if len(text) < 17 and text.isdecimal() and text[0] == '3':
                         tracking_data['SERIAL_NUMBER'] = text
                         reply_keyboard = kb.upload_keyboard
                         reply_text = resources.photo_message
-                        tracking_data['STAGE'] = 'category'
+                        tracking_data['STAGE'] = 'photo'
                     else:
                         reply_keyboard = kb.opeartor_keyboard
                         reply_text = resources.serial_number_error
                         tracking_data['STAGE'] = 'serial'
+                elif tracking_data['STAGE'] == 'photo':
+                    reply_keyboard = kb.upload_keyboard
+                    reply_text = resources.photo_message
                 elif tracking_data['STAGE'] == 'reason':
                     tracking_data['REASON'] = text
                     list_of_dates = schedule_matcher()[:18]
