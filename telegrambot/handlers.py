@@ -640,7 +640,8 @@ def time_handler(update: Update, context: CallbackContext):
     context.user_data['HISTORY'] += save_message_to_history(text, 'bot')
     context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                         text=resources.final_message,
-                        reply_markup=inline_buttons)
+                        reply_markup=inline_buttons,
+                        disable_web_page_preview=True)
     context.user_data['HISTORY'] += save_message_to_history(resources.final_message, 'bot')
     context.user_data['HISTORY'] = ''
     all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
