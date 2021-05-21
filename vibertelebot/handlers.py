@@ -142,7 +142,7 @@ def user_message_handler(viber, viber_request):
             elif text[:8] == 'category':
                 pick = ''
                 for item in kb.categories:
-                    if item[1] == text.split('-')[1]:
+                    if item[1] == text:
                         pick = item[0]
                 tracking_data['CATEGORY'] = pick
                 reply_keyboard = kb.brand_keyboard

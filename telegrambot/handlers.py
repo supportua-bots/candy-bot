@@ -324,7 +324,7 @@ def category_handler(update: Update, context: CallbackContext):
         context.user_data['HISTORY'] = ''
     pick = ''
     for item in kb.category_keyboard:
-        if item[1] == update.callback_query.data.split('-')[1]:
+        if item[1] == update.callback_query.data:
             pick = item[0]
     context.user_data['CATEGORY'] = pick
     choice = choice_definer(update)
@@ -646,7 +646,7 @@ def time_handler(update: Update, context: CallbackContext):
                         text=resources.final_message,
                         reply_markup=inline_buttons,
                         disable_web_page_preview=True,
-                        parse_mode='markdown')
+                        parse_mode='html')
     context.user_data['HISTORY'] += save_message_to_history(resources.final_message, 'bot')
     context.user_data['HISTORY'] = ''
     all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]
