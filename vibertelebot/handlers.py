@@ -205,7 +205,7 @@ def user_message_handler(viber, viber_request):
                 add_event(timestamp_start, timestamp_end, f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
                 tracking_data['HISTORY'] = ''
                 reply_keyboard = kb.return_keyboard
-                reply_text = resources.final_message
+                reply_text = resources.final_message_viber
                 all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
                 for i in all_filenames:
                     f = open(i ,'rb')
