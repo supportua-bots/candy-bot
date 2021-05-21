@@ -272,22 +272,22 @@ def phone_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     inline_keyboard = [
-        [InlineKeyboardButton(text=kb.category_keyboard[0],
-                                callback_data='category-Stiralki'),
-        InlineKeyboardButton(text=kb.category_keyboard[1],
-                                callback_data='category-Stiralki_Sushilki')],
-        [InlineKeyboardButton(text=kb.category_keyboard[2],
-                                callback_data='category-Posudomoyki'),
-        InlineKeyboardButton(text=kb.category_keyboard[3],
-                                callback_data='category-Holodilnik_Morozilnik')],
-        [InlineKeyboardButton(text=kb.category_keyboard[4],
-                                callback_data='category-Plity_Duhovye_Shkafi'),
-        InlineKeyboardButton(text=kb.category_keyboard[5],
-                                callback_data='category-Mikrovolnovki')],
-        [InlineKeyboardButton(text=kb.category_keyboard[6],
-                                callback_data='category-Pylesosy'),
-        InlineKeyboardButton(text=kb.category_keyboard[7],
-                                callback_data='category-Drugoe')],
+        [InlineKeyboardButton(text=kb.category_keyboard[0][0],
+                                callback_data=kb.category_keyboard[0][1]),
+        InlineKeyboardButton(text=kb.category_keyboard[1][0],
+                                callback_data=kb.category_keyboard[1][1])],
+        [InlineKeyboardButton(text=kb.category_keyboard[2][0],
+                                callback_data=kb.category_keyboard[2][1]),
+        InlineKeyboardButton(text=kb.category_keyboard[3][0],
+                                callback_data=kb.category_keyboard[3][1])],
+        [InlineKeyboardButton(text=kb.category_keyboard[4][0],
+                                callback_data=kb.category_keyboard[4][1]),
+        InlineKeyboardButton(text=kb.category_keyboard[5][0],
+                                callback_data=kb.category_keyboard[5][1])],
+        [InlineKeyboardButton(text=kb.category_keyboard[6][0],
+                                callback_data=kb.category_keyboard[6][1]),
+        InlineKeyboardButton(text=kb.category_keyboard[7][0],
+                                callback_data=kb.category_keyboard[7][1])],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     try:
@@ -322,7 +322,11 @@ def phone_handler(update: Update, context: CallbackContext):
 def category_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
-    context.user_data['CATEGORY'] = update.callback_query.data.split('-')[1]
+    pick = ''
+    for item in kb.category_keyboard:
+        if item[1] == update.callback_query.data.split('-')[1]:
+            pick = item[0]
+    context.user_data['CATEGORY'] = pick
     choice = choice_definer(update)
     context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
     update.callback_query.edit_message_text(
@@ -372,7 +376,7 @@ def serial_number_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     message = update.message.text.replace(' ', '')
-    if len(message) < 17 and message.isdecimal() and message[0] == '3':
+    if len(message) == 16 and message.isdecimal() and message[0] == '3':
         context.user_data['SERIAL_NUMBER'] = update.message.text
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
         contact_keyboard = [[KeyboardButton(kb.photo_keyboard[1])],
@@ -641,7 +645,8 @@ def time_handler(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                         text=resources.final_message,
                         reply_markup=inline_buttons,
-                        disable_web_page_preview=True)
+                        disable_web_page_preview=True,
+                        parse_mode='markdown')
     context.user_data['HISTORY'] += save_message_to_history(resources.final_message, 'bot')
     context.user_data['HISTORY'] = ''
     all_filenames = [i for i in glob.glob(f'media/{update.callback_query.message.chat.id}/*.jpg')]

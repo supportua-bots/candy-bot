@@ -2,7 +2,7 @@ from vibertelebot.utils.tools import keyboard_consctructor
 
 LOGO = 'https://i.ibb.co/VNpXPB5/1.png'
 
-category_keyboard = keyboard_consctructor([
+categories = [
             ('Пральні машини', 'category-Stiralki', ''),
             ('Прально-сушильні машини', 'category-Stiralki_Sushilki', ''),
             ('Посудомийні машини', 'category-Posudomoyki', ''),
@@ -11,7 +11,7 @@ category_keyboard = keyboard_consctructor([
             ('Мікрохвильові пічі', 'category-Mikrovolnovki', ''),
             ('Пилососи', 'category-Pylesosy', ''),
             ('Інше', 'category-Drugoe', '')
-            ])
+            ]
 
 end_chat_keyboard = keyboard_consctructor([
             ('Завершити чат', 'end_chat', '')
@@ -50,3 +50,5 @@ phone_keyboard = [
             ("Зв'язок з оператором", 'operator', ''),
             ('Подiлитись номером', 'phone_reply', '')
             ]
+
+category_keyboard = keyboard_consctructor(categories)

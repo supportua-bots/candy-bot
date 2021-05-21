@@ -140,7 +140,11 @@ def user_message_handler(viber, viber_request):
                 reply_text = resources.serial_number_message
                 tracking_data['STAGE'] = 'serial'
             elif text[:8] == 'category':
-                tracking_data['CATEGORY'] = text.split('-')[1]
+                pick = ''
+                for item in kb.categories:
+                    if item[1] == text.split('-')[1]:
+                        pick = item[0]
+                tracking_data['CATEGORY'] = pick
                 reply_keyboard = kb.brand_keyboard
                 reply_text = resources.brand_message
                 tracking_data['STAGE'] = 'menu'
@@ -231,7 +235,7 @@ def user_message_handler(viber, viber_request):
                         reply_text = resources.phone_error
                 elif tracking_data['STAGE'] == 'serial':
                     text = text.replace(' ', '')
-                    if len(text) < 17 and text.isdecimal() and text[0] == '3':
+                    if len(text) == 16 and text.isdecimal() and text[0] == '3':
                         tracking_data['SERIAL_NUMBER'] = text
                         reply_keyboard = kb.upload_keyboard
                         reply_text = resources.photo_message
