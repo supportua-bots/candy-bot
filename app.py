@@ -8,7 +8,7 @@ from vibertelebot import main as vbbot
 app = Flask(__name__)
 
 
-@app.route('/jivochatgram', methods=['POST'])
+@app.route('/jivochatgram', methods=['GET', 'POST'])
 def jivochat_endpoint_telegram():
     source = 'telegram'
     data = request.get_json()
@@ -21,7 +21,7 @@ def jivochat_endpoint_telegram():
     return response
 
 
-@app.route('/jivochatviber', methods=['POST'])
+@app.route('/jivochatviber', methods=['GET', 'POST'])
 def jivochat_endpoint_viber():
     source = 'viber'
     data = request.get_json()
