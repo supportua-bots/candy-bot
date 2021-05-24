@@ -72,7 +72,10 @@ def schedule_matcher():
                 if (event[0] < period[1] and period[1] < event[1]) or (event[0] >= period[1] and event[1] >= period[2] and event[0] < period[2]):
                     delete_items.append(period)
         for item in delete_items:
-            static_schedule[day].remove(item)
+            try:
+                static_schedule[day].remove(item)
+            except:
+                pass
         if not static_schedule[day]:
             empty_dates.append(day)
     for item in empty_dates:

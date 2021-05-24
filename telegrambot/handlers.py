@@ -331,10 +331,9 @@ def category_handler(update: Update, context: CallbackContext):
         if item[1] == update.callback_query.data:
             pick = item[0]
     context.user_data['CATEGORY'] = pick
-    choice = choice_definer(update)
-    context.user_data['HISTORY'] += save_message_to_history(choice, 'user')
+    context.user_data['HISTORY'] += save_message_to_history(pick, 'user')
     update.callback_query.edit_message_text(
-        text=f'{update.callback_query.message.text}\nВаш вибір: {choice}'
+        text=f'{update.callback_query.message.text}\nВаш вибір: {pick}'
     )
     inline_keyboard = [
         [
