@@ -292,6 +292,10 @@ def phone_handler(update: Update, context: CallbackContext):
                                 callback_data=kb.category_keyboard[8][1]),
         InlineKeyboardButton(text=kb.category_keyboard[9][0],
                                 callback_data=kb.category_keyboard[9][1])],
+        [InlineKeyboardButton(text=kb.category_keyboard[10][0],
+                                callback_data=kb.category_keyboard[10][1]),
+        InlineKeyboardButton(text=kb.category_keyboard[11][0],
+                                callback_data=kb.category_keyboard[11][1])],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     try:
