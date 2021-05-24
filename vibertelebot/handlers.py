@@ -159,6 +159,12 @@ def user_message_handler(viber, viber_request):
                     keyboard = kb.upload_keyboard
                     reply_text = resources.photo_error
                 reply_keyboard = keyboard
+            elif text == 'reason':
+                list_of_dates = schedule_matcher()[:18]
+                beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b'), f'date%{x[0]}', '') for x in list_of_dates]
+                reply_keyboard = keyboard_consctructor(beautified_dates)
+                reply_text = resources.date_message
+                tracking_data['STAGE'] = 'menu'
             elif text[:4] == 'date':
                 choosed_date = text.split('%')[1]
                 tracking_data['DATE'] = choosed_date
@@ -168,6 +174,7 @@ def user_message_handler(viber, viber_request):
                     if dates[0] == choosed_date:
                         choosed_item = dates
                 keyboard = [(x[0], f'time%{x[0]}', '') for x in choosed_item[1]]
+                keyboard.append(kb.back_to_date)
                 reply_keyboard = keyboard_consctructor(keyboard)
                 reply_text = resources.time_message
             elif text[:4] == 'time':

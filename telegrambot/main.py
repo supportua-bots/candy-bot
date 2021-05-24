@@ -79,6 +79,9 @@ def main():
             CallbackQueryHandler(operator_handler,
                                             pattern=r'^operator',
                                             pass_user_data=True),
+            CallbackQueryHandler(reason_handler,
+                                            pattern=r'^reason',
+                                            pass_user_data=True),
         ],
         states={
             NAME: [MessageHandler(Filters.regex("Зв'язок з оператором"), operator_handler,

@@ -546,20 +546,25 @@ def photos_handler(update: Update, context: CallbackContext):
 def reason_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
-    context.user_data['REASON'] = update.message.text
-    message = update.message.text
-    context.user_data['HISTORY'] += save_message_to_history(message, 'user')
     list_of_dates = schedule_matcher()[:20]
     beautified_dates = [(f'date%{x[0]}', datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b')) for x in list_of_dates]
     sorted_dates = list(divide_chunks(beautified_dates, 4))
     inline_keyboard = [[InlineKeyboardButton(text=x[1],
                                 callback_data=f'{x[0]}') for x in item] for item in sorted_dates]
-    print(inline_keyboard)
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-    update.message.reply_text(
-        text=resources.date_message,
-        reply_markup=inline_buttons,
-    )
+    try:
+        context.user_data['REASON'] = update.message.text
+        message = update.message.text
+        context.user_data['HISTORY'] += save_message_to_history(message, 'user')
+        update.message.reply_text(
+            text=resources.date_message,
+            reply_markup=inline_buttons,
+        )
+    except:
+        update.callback_query.edit_message_text(
+            text=resources.date_message,
+            reply_markup=inline_buttons,
+        )
     context.user_data['HISTORY'] += save_message_to_history(resources.date_message, 'bot')
     return ConversationHandler.END
 
@@ -579,6 +584,12 @@ def date_handler(update: Update, context: CallbackContext):
     sorted_dates = list(divide_chunks(choosed_item[1], 2))
     inline_keyboard = [[InlineKeyboardButton(text=x[0],
                                 callback_data=f'time%{x[0]}') for x in item] for item in sorted_dates]
+    inline_keyboard.append(
+            [
+             InlineKeyboardButton(
+                 text=kb.back_to_date[0],
+                 callback_data='reason'),
+            ])
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     update.callback_query.edit_message_text(
         text=date
