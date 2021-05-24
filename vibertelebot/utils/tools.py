@@ -12,7 +12,7 @@ MAIN_COLOR = os.getenv("COLOR")
 
 def keyboard_consctructor(items: list) -> dict:
     """Pasting infromation from list of items to keyboard menu template."""
-    if len(items) > 10:
+    if len(items) > 12:
         width = 1
     elif len(items) == 3:
         width = 2
