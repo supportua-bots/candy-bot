@@ -587,7 +587,7 @@ def date_handler(update: Update, context: CallbackContext):
     inline_keyboard.append(
             [
              InlineKeyboardButton(
-                 text=kb.back_to_date[0],
+                 text=kb.back_to_date,
                  callback_data='reason'),
             ])
     inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
