@@ -298,6 +298,7 @@ def phone_handler(update: Update, context: CallbackContext):
                                 callback_data=kb.category_keyboard[11][1])],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+    
     try:
         context.user_data['PHONE'] = update.message.contact.phone_number
         message = update.message.contact.phone_number
