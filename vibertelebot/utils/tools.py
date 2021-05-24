@@ -34,7 +34,6 @@ def keyboard_consctructor(items: list) -> dict:
                 "ReplyType": "message",
                 "Text": item[0],
                 # "TextOpacity": 0,
-                "Image": item[2]
         } for item in items]
     }
     return keyboard

@@ -32,15 +32,7 @@ viber = Api(BotConfiguration(
 
 TOKEN = os.getenv("TOKEN")
 
-req = Request(
-    connect_timeout=30.0,
-    read_timeout=5.0,
-    con_pool_size=8,
-)
-bot = Bot(
-    token=TOKEN,
-    request=req,
-)
+bot = Bot(token=os.getenv("TOKEN"))
 
 logger.add(
     "logs/info.log",
