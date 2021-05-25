@@ -12,6 +12,7 @@ app = Flask(__name__)
 def jivochat_endpoint_telegram():
     source = 'telegram'
     data = request.get_json()
+    print(data)
     returned_data = jivo.main(data, source)
     response = app.response_class(
         response=json.dumps(returned_data),
@@ -25,6 +26,7 @@ def jivochat_endpoint_telegram():
 def jivochat_endpoint_viber():
     source = 'viber'
     data = request.get_json()
+    print(data)
     returned_data = jivo.main(data, source)
     response = app.response_class(
         response=json.dumps(returned_data),
