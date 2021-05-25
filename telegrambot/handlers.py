@@ -66,8 +66,7 @@ def greetings_handler(update: Update, context: CallbackContext):
 def menu_handler(update: Update, context: CallbackContext):
     if 'NAME' not in context.user_data:
         context.user_data['NAME'] = 'TelegramUser'
-    if 'HISTORY' not in context.user_data:
-        context.user_data['HISTORY'] = ''
+    context.user_data['HISTORY'] = ''
     inline_keyboard = [
         [
             InlineKeyboardButton(text=kb.menu_keyboard[0],
@@ -298,7 +297,7 @@ def phone_handler(update: Update, context: CallbackContext):
                                 callback_data=kb.category_keyboard[11][1])],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-    
+
     try:
         context.user_data['PHONE'] = update.message.contact.phone_number
         message = update.message.contact.phone_number

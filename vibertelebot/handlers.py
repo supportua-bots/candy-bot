@@ -88,6 +88,10 @@ def user_message_handler(viber, viber_request):
             if text == 'menu':
                 reply_keyboard = kb.menu_keyboard
                 reply_text = resources.greeting_message
+                try:
+                    open(f'media/{chat_id}/history.txt', 'w').close()
+                except:
+                    pass
             elif text == 'end_chat':
                 jivochat.send_message(chat_id,
                                       tracking_data['NAME'],
