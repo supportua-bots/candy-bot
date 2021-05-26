@@ -42,7 +42,10 @@ def send_message(user_id, name, text, source):
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
-    print(x.text)
+    try:
+        print(x.json())
+    except:
+        print(x.text)
 
 
 @logger.catch
