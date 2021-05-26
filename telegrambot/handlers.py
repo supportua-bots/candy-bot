@@ -120,7 +120,6 @@ def operator_handler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.message.from_user.id,
                         text=resources.operator_message,
                         reply_markup=reply_markup)
-    print('Here in code')
     jivochat.send_message(chat_id,
                               context.user_data['NAME'],
                               context.user_data['HISTORY'],

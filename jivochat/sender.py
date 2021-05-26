@@ -25,7 +25,6 @@ def send_message(user_id, name, text, source):
         URL = TELEGRAM_URL
     else:
         URL = VIBER_URL
-    print('Heeeereeeeee')
     input = {
         "sender" :
             {
@@ -42,6 +41,7 @@ def send_message(user_id, name, text, source):
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
+    print(x.json())
 
 
 @logger.catch
