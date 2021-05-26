@@ -41,7 +41,7 @@ def send_message(user_id, name, text, source):
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
-    print(x.json())
+    print(x.text)
 
 
 @logger.catch
