@@ -105,10 +105,6 @@ def operator_handler(update: Update, context: CallbackContext):
     reply_markup = ReplyKeyboardMarkup(keyboard=[[ contact_keyboard ]],
                                         resize_keyboard=True)
     context.user_data['HISTORY'] += save_message_to_history(resources.operator_message, 'bot')
-    jivochat.send_message(chat_id,
-                          context.user_data['NAME'],
-                          context.user_data['HISTORY'],
-                          'telegram')
     try:
         request = update.callback_query
         chat_id=update.callback_query.message.chat.id
@@ -118,12 +114,16 @@ def operator_handler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                         text=resources.operator_message,
                         reply_markup=reply_markup)
-    except AttributeError:
+    except:
         request = update.message
         chat_id=update.message.from_user.id
         context.bot.send_message(chat_id=update.message.from_user.id,
                         text=resources.operator_message,
                         reply_markup=reply_markup)
+    jivochat.send_message(chat_id,
+                              context.user_data['NAME'],
+                              context.user_data['HISTORY'],
+                              'telegram')
     try:
         with open(f'media/{chat_id}/links.txt', 'r') as f:
             content = f.read()
