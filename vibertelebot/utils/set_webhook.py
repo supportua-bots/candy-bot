@@ -19,7 +19,7 @@ logger.setLevel('DEBUG')
 
 # Setting up webhook parameters
 # auth_token = os.getenv("VIBER_TOKEN")
-auth_token = '4d6368bdb227d0b9-3fb640d0db67e8ad-cb4fe852ebae0dee'
+auth_token = '4d6a07da7ce7df22-e3c2d71880b5a2b5-3e8780d18b6d3c06'
 
 hook = 'https://chatapi.viber.com/pa/set_webhook'
 headers = {'X-Viber-Auth-Token': auth_token}

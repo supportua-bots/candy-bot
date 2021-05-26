@@ -47,7 +47,9 @@ def main(data, source):
     if 'event_name' not in data:
         if data['message']['type'] == 'text':
             user = data['recipient']['id']
+            print(user)
             text = data['message']['text']
+            print(text)
             if source == 'telegram':
                 bot.send_message(user, text)
             else:
