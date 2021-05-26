@@ -16,6 +16,7 @@ from viberbot.api.viber_requests import (ViberFailedRequest,
                                          ViberMessageRequest,
                                          ViberSubscribedRequest)
 from vibertelebot.utils.tools import keyboard_consctructor
+from vibertelebot.main import viber
 from flask import Flask, request, Response, json, jsonify
 from jivochat.utils import resources
 from loguru import logger
@@ -23,12 +24,6 @@ from loguru import logger
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
-
-viber = Api(BotConfiguration(
-    name='Test Bot',
-    avatar='https://i.ibb.co/SPXsFsp/image.jpg',
-    auth_token='4d32d064af27dc4e-1e05a35088b28256-ec7e6129925eb789'
-))
 
 TOKEN = os.getenv("TOKEN")
 
