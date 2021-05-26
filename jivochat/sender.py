@@ -39,6 +39,7 @@ def send_message(user_id, name, text, source):
             }
     }
     print(input)
+    print(URL)
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
