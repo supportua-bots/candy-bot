@@ -1,9 +1,16 @@
+import os
 import base64
 import json
 import requests
+from pathlib import Path
+from dotenv import load_dotenv
 from urllib.parse import urlencode
 from datetime import datetime, date, timedelta
 from loguru import logger
+
+
+dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
+load_dotenv(dotenv_path)
 
 
 logger.add(
@@ -121,27 +128,34 @@ def add_comment(deal_id, comment):
     x = requests.get(url)
     return x.json()['result']
 
+
+@logger.catch
+def upload_image(path):
+    url = "https://api.imgbb.com/1/upload"
+    api_key = os.getenv('IMAGE_API')
+    with open(path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    params = {
+        'key': api_key,
+        'image': encoded_string
+    }
+    r = requests.post(url, data=params)
+    return r.json()['data']['url']
+
+
 if __name__ == '__main__':
-    path = 'media/117363364/links.txt'
-    url = "https://content.dropboxapi.com/2/files/upload"
-    headers = {
-        "Authorization": "Bearer sl.AxcvbjECHkDEglUUc57JG2Hh6sJZscdve69P2dO4CPTps045bQAHqEZiIcL42_5RnB6WkKAkSiwqQOxrdLsYgLcYa3EW_IEUZeQaUUWsMrX4dEuxW62AmL0EnsJFureLiB47XYwI",
-        "Content-Type": "application/octet-stream",
-        "Dropbox-API-Arg": '{\"path\":\"/media/117363364/links.txt"}'
+    url = "https://api.imgbb.com/1/upload"
+    api_key = os.getenv('IMAGE_API')
+    path = 'photo2870.jpg'
+    with open(path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    params = {
+        'key': api_key,
+        'image': encoded_string
     }
-    data = open(path, "rb").read()
-    r = requests.post(url, headers=headers, data=data)
-    print(r.json())
-    url = "https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings"
-    headers = {
-        "Authorization": "Bearer sl.AxcvbjECHkDEglUUc57JG2Hh6sJZscdve69P2dO4CPTps045bQAHqEZiIcL42_5RnB6WkKAkSiwqQOxrdLsYgLcYa3EW_IEUZeQaUUWsMrX4dEuxW62AmL0EnsJFureLiB47XYwI",
-        "Content-Type": "application/octet-stream"
-    }
-    data = {
-    "path": f'/{path}'
-    }
-    r = requests.post(url, headers=headers, data=json.dumps(data))
-    print(r.json())
+    r = requests.post(url, data=params)
+    print(r.json()['data']['url'])
+    print(r.text)
 #     MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/qfhlg4mpu5jyz7kn/entity.item.add.json'
 #     with open("photo2870.jpg", "rb") as image_file:
 #         encoded_string = base64.b64encode(image_file.read())

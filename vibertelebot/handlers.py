@@ -18,7 +18,7 @@ from viberbot.api.messages.rich_media_message import RichMediaMessage
 from viberbot.api.messages.picture_message import PictureMessage
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
-from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment
+from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment, upload_image
 from textskeyboards import viberkeyboards as kb
 
 
@@ -61,11 +61,13 @@ def user_message_handler(viber, viber_request):
         response = requests.get(viber_request.message.media)
         if not os.path.exists(f'media/{chat_id}'):
             os.makedirs(f'media/{chat_id}')
-        file_links = open(f'media/{chat_id}/links.txt', 'a')
-        file_links.write(f'{viber_request.message.media},')
-        file_links.close()
-        with open(f"media/{chat_id}/{viber_request.message_token}.jpg", 'wb') as f:
+        img_path = f"media/{chat_id}/{viber_request.message_token}.jpg"
+        with open(img_path, 'wb') as f:
             f.write(response.content)
+        link = upload_image(img_path)
+        file_links = open(f'media/{chat_id}/links.txt', 'a')
+        file_links.write(f'{link},')
+        file_links.close()
     else:
         text = viber_request.message.text
         save_message_to_history(text, 'user', chat_id)
@@ -165,7 +167,7 @@ def user_message_handler(viber, viber_request):
                 reply_keyboard = keyboard
             elif text == 'reason':
                 list_of_dates = schedule_matcher()[:18]
-                beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b'), f'date%{x[0]}', '') for x in list_of_dates]
+                beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%d.%m'), f'date%{x[0]}', '') for x in list_of_dates]
                 reply_keyboard = keyboard_consctructor(beautified_dates)
                 reply_text = resources.date_message
                 tracking_data['STAGE'] = 'menu'

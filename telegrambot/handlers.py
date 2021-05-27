@@ -14,7 +14,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 from textskeyboards import texts as resources
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
-from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment
+from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment, upload_image
 from textskeyboards import telegramkeyboards as kb
 
 
@@ -511,18 +511,22 @@ def photos_handler(update: Update, context: CallbackContext):
     if payload and payload['photo']:
         tele_file = context.bot.get_file(update.message.photo[-1].file_id)
         file_path = tele_file['file_path']
+        path = f'media/{user_id}/photo{update.message.message_id}.jpg'
+        tele_file.download(path)
+        link = upload_image(path)
         file_links = open(f'media/{user_id}/links.txt', 'a')
-        file_links.write(f'{file_path},')
+        file_links.write(f'{link},')
         file_links.close()
-        tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
         return PHOTOS
     if payload and payload['document']:
         tele_file = context.bot.get_file(update.message.document.file_id)
         file_path = str(tele_file['file_path'])
+        path = f'media/{user_id}/photo{update.message.message_id}.jpg'
+        tele_file.download(path)
+        link = upload_image(path)
         file_links = open(f'media/{user_id}/links.txt', 'a')
-        file_links.write(f'{file_path},')
+        file_links.write(f'{link},')
         file_links.close()
-        tele_file.download(f'media/{user_id}/photo{update.message.message_id}.jpg')
         return PHOTOS
     if update.message.text == "Продовжити":
         all_filenames = [i for i in glob.glob(f'media/{update.message.from_user.id}/*.jpg')]
@@ -554,7 +558,7 @@ def reason_handler(update: Update, context: CallbackContext):
     if 'HISTORY' not in context.user_data:
         context.user_data['HISTORY'] = ''
     list_of_dates = schedule_matcher()[:20]
-    beautified_dates = [(f'date%{x[0]}', datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b')) for x in list_of_dates]
+    beautified_dates = [(f'date%{x[0]}', datetime.strptime(x[0], '%Y-%m-%d').strftime('%d.%m')) for x in list_of_dates]
     sorted_dates = list(divide_chunks(beautified_dates, 4))
     inline_keyboard = [[InlineKeyboardButton(text=x[1],
                                 callback_data=f'{x[0]}') for x in item] for item in sorted_dates]

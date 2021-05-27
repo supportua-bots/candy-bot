@@ -20,13 +20,6 @@ from textskeyboards import viberkeyboards as kb
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
 
-
-# viber = Api(BotConfiguration(
-#     name='candyua',
-#     avatar='https://image.shutterstock.com/image-vector/llustration-stained-glass-style-flowers-260nw-1765117148.jpg',
-#     auth_token='4d6a07da7ce7df22-e3c2d71880b5a2b5-3e8780d18b6d3c06'
-# ))
-
 viber = Api(BotConfiguration(
     name='candyua',
     avatar=kb.LOGO,
@@ -63,12 +56,3 @@ def main(request):
                 keyboard=reply_keyboard)
             ]
         )
-
-#
-# if __name__ == '__main__':
-#     USER = 'Z/OMI5DXwwGX1uk3vY4sEw=='
-#     viber.send_messages(USER, [
-#         TextMessage(
-#             text='Test send')
-#         ]
-#     )
