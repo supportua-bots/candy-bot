@@ -6,6 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from datetime import datetime, date, timedelta
+from bitrix.admin import OWNER_ID
 from loguru import logger
 
 
@@ -22,7 +23,7 @@ logger.add(
 )
 
 
-URL = 'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=user&ownerId=355'
+URL = f'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=user&ownerId={OWNER_ID}&section=457'
 
 time_chunks = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
 
