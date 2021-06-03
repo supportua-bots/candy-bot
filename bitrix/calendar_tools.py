@@ -113,7 +113,7 @@ def add_to_crm(category, reason, phone, brand, serial, name, date, time):
               'fields[UF_CRM_1620726993270]':name,
               'fields[UF_CRM_1620715319172]':date,
               'fields[UF_CRM_1620715309625]':time,
-              'fields[ASSIGNED_BY_ID]':355}
+              'fields[ASSIGNED_BY_ID]':OWNER_ID}
     url = MAIN_URL + urlencode(fields, doseq=True)
     x = requests.get(url)
     return x.json()['result']
