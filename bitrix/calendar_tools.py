@@ -23,7 +23,7 @@ logger.add(
 )
 
 
-URL = f'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=user&ownerId={OWNER_ID}&section={SECTION_ID}'
+URL = f'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=company_calendar&ownerId=U_115&section={SECTION_ID}'
 
 time_chunks = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
 
@@ -96,7 +96,7 @@ def schedule_matcher():
 @logger.catch
 def add_event(start, end, name, deal_id):
     link = f'https://supportua.bitrix24.ua/crm/deal/details/{deal_id}/'
-    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=user&ownerId=2067&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&attendees[]=355&attendees[]=78&attendees[]=383&attendees[]=178&attendees[]=253&description={link}'
+    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=company_calendar&ownerId=U_115&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&attendees[]=355&attendees[]=78&attendees[]=383&attendees[]=178&attendees[]=253&attendees[]=2067&description={link}'
     x = requests.get(SEND_URL)
 
 
