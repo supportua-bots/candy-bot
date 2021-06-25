@@ -480,7 +480,7 @@ def photos_handler(update: Update, context: CallbackContext):
                                                 resize_keyboard=True)
             update.message.reply_text(text=resources.photo_check_message,
                                       reply_markup=reply_markup)
-            context.user_data['HISTORY'] += save_message_to_history(resources.photo_check, 'bot')
+            context.user_data['HISTORY'] += save_message_to_history(resources.photo_check_message, 'bot')
             context.user_data['STAGE'] = 'photo_check'
             return PHOTOS
         else:
