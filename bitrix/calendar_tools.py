@@ -67,7 +67,7 @@ def calendar_grabber():
     for event in answer['result']:
         date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
         date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
-        if event['NAME'] != non_working_hours and event['NAME'] != dayoff:
+        if event['NAME'] != dayoff:
             event_list.append((date_start, date_end))
     return event_list
 
