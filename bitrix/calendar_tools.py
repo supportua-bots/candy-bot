@@ -67,7 +67,8 @@ def calendar_grabber():
     for event in answer['result']:
         date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
         date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
-        event_list.append((date_start, date_end))
+        if event['NAME'] != non_working_hours and event['NAME'] != dayoff:
+            event_list.append((date_start, date_end))
     return event_list
 
 
@@ -101,8 +102,10 @@ def schedule_matcher():
         for period in static_schedule[day]:
             for event in event_list:
                 if (event[0] < period[1] and period[1] < event[1]) or (event[0] >= period[1] and event[1] >= period[2] and event[0] < period[2]):
-                    if event[1] < 2000000000:
-                        delete_items.append(period)
+                    # print(event[1] < 2000000000)
+                    # print(f'Deleted item:\n{event}\n{period}\n\n')
+                    # print(event[1], type(event[1]))
+                    delete_items.append(period)
         for item in delete_items:
             try:
                 static_schedule[day].remove(item)
