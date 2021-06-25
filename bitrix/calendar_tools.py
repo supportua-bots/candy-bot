@@ -44,7 +44,7 @@ def workdays(d, end, excluded=(6, 7)):
 @logger.catch
 def time_table_creator():
     timetable = {}
-    list_of_dates = workdays(datetime.now(), datetime.now() + timedelta(days=30))
+    list_of_dates = workdays(datetime.now(), datetime.now() + timedelta(days=60))
     for date in list_of_dates:
         stringified_date = date.strftime('%Y-%m-%d')
         for time_period in time_chunks:
@@ -79,6 +79,7 @@ def chat_availability_check():
     answer = x.json()
     event_list = []
     for event in answer['result']:
+        print(event['NAME'])
         date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
         date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
         ts = datetime.now().timestamp()
@@ -100,7 +101,8 @@ def schedule_matcher():
         for period in static_schedule[day]:
             for event in event_list:
                 if (event[0] < period[1] and period[1] < event[1]) or (event[0] >= period[1] and event[1] >= period[2] and event[0] < period[2]):
-                    delete_items.append(period)
+                    if event[1] < 2000000000:
+                        delete_items.append(period)
         for item in delete_items:
             try:
                 static_schedule[day].remove(item)
@@ -109,7 +111,7 @@ def schedule_matcher():
         if not static_schedule[day]:
             empty_dates.append(day)
     for item in empty_dates:
-        print(static_schedule.pop(item, None))
+        static_schedule.pop(item, None)
     available_dates = sorted(static_schedule.items())
     return available_dates
 
@@ -166,4 +168,4 @@ def upload_image(path):
 
 
 if __name__ == '__main__':
-    calendar_availability_check()
+    print(schedule_matcher())
