@@ -160,11 +160,11 @@ def operator_handler(update: Update, context: CallbackContext):
         ]
         inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
         reply_markup = ReplyKeyboardRemove()
-        context.bot.send_message(chat_id=update.message.from_user.id,
+        context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                         text=resources.operator_unavailable,
                         reply_markup=reply_markup)
         time.sleep(1)
-        context.bot.send_message(chat_id=update.message.from_user.id,
+        context.bot.send_message(chat_id=update.callback_query.message.chat.id,
                         text=resources.greeting_message,
                         reply_markup=inline_buttons)
         return ConversationHandler.END
