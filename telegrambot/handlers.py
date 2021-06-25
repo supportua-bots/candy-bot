@@ -409,13 +409,11 @@ def serial_number_handler(update: Update, context: CallbackContext):
     if len(message) == 16 and message.isdecimal() and message[0] == '3':
         context.user_data['SERIAL_NUMBER'] = update.message.text
         context.user_data['HISTORY'] += save_message_to_history(message, 'user')
-        contact_keyboard = [[KeyboardButton(kb.photo_keyboard[1])],
-                            [KeyboardButton(kb.photo_keyboard[0])]]
-
+        contact_keyboard = [[KeyboardButton("Зв'язок з оператором")]]
         reply_markup = ReplyKeyboardMarkup(keyboard=contact_keyboard,
                                             resize_keyboard=True)
         update.message.reply_text(
-            text=resources.photo_message,
+            text=resources.photo_serial_message,
             reply_markup=reply_markup)
         context.user_data['HISTORY'] += save_message_to_history(resources.photo_serial_message, 'bot')
         context.user_data['STAGE'] = 'photo_serial'
