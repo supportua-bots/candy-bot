@@ -73,9 +73,9 @@ def calendar_grabber():
 
 @logger.catch
 def chat_availability_check():
-    TEST_URL = 'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=user&ownerId=2067&section=457'
-    # x = requests.get(URL)
-    x = requests.get(TEST_URL)
+    # TEST_URL = 'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=user&ownerId=2067&section=457'
+    x = requests.get(URL)
+    # x = requests.get(TEST_URL)
     answer = x.json()
     event_list = []
     for event in answer['result']:

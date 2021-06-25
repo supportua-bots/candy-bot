@@ -83,6 +83,14 @@ def user_message_handler(viber, viber_request):
         else:
             reply_keyboard = kb.opeartor_keyboard
             reply_text = resources.photo_error
+        save_message_to_history(reply_text, 'bot', chat_id)
+        logger.info(tracking_data)
+        tracking_data = json.dumps(tracking_data)
+        reply = [TextMessage(text=reply_text,
+                             keyboard=reply_keyboard,
+                             tracking_data=tracking_data,
+                             min_api_version=3)]
+        viber.send_messages(chat_id, reply)
     else:
         text = viber_request.message.text
         save_message_to_history(text, 'user', chat_id)
