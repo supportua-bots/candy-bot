@@ -18,7 +18,7 @@ from viberbot.api.messages.rich_media_message import RichMediaMessage
 from viberbot.api.messages.picture_message import PictureMessage
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
-from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment, upload_image
+from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment, upload_image, chat_availability_check
 from textskeyboards import viberkeyboards as kb
 
 
@@ -68,6 +68,21 @@ def user_message_handler(viber, viber_request):
         file_links = open(f'media/{chat_id}/links.txt', 'a')
         file_links.write(f'{link},')
         file_links.close()
+        if tracking_data['STAGE'] == 'photo_serial':
+            reply_keyboard = kb.opeartor_keyboard
+            reply_text = resources.photo_guarantee_message
+            tracking_data['STAGE'] = 'photo_guarantee'
+        elif tracking_data['STAGE'] == 'photo_guarantee':
+            reply_keyboard = kb.opeartor_keyboard
+            reply_text = resources.photo_check_message
+            tracking_data['STAGE'] = 'photo_check'
+        elif tracking_data['STAGE'] == 'photo_check':
+            reply_text = resources.reason_message
+            tracking_data['STAGE'] = 'reason'
+            keyboard = kb.opeartor_keyboard
+        else:
+            reply_keyboard = kb.opeartor_keyboard
+            reply_text = resources.photo_error
     else:
         text = viber_request.message.text
         save_message_to_history(text, 'user', chat_id)
@@ -105,34 +120,42 @@ def user_message_handler(viber, viber_request):
                 reply_text = resources.greeting_message
                 time.sleep(1)
             elif text == 'operator':
-                tracking_data['CHAT_MODE'] = 'on'
-                reply_keyboard = kb.end_chat_keyboard
-                reply_text = resources.operator_message
-                with open(f'media/{chat_id}/history.txt', 'r') as f:
-                    history = f.read()
-                jivochat.send_message(chat_id,
-                                      tracking_data['NAME'],
-                                      history,
-                                      'viber')
-                try:
-                    with open(f'media/{chat_id}/links.txt', 'r') as f:
-                        content = f.read()
-                        links = content.split(',')
-                        for link in links:
-                            name = link.split('/')[-1]
-                            jivochat.send_photo(chat_id, tracking_data['NAME'], link, name, 'viber')
-                except IOError:
-                    print("File not accessible")
-                tracking_data['HISTORY'] = ''
-                all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
-                for i in all_filenames:
-                    f = open(i ,'rb')
-                    os.remove(i)
-                try:
-                    open(f'media/{chat_id}/links.txt', 'w').close()
-                    open(f'media/{chat_id}/history.txt', 'w').close()
-                except:
-                    pass
+                chat_available = chat_availability_check()
+                if chat_available:
+                    tracking_data['CHAT_MODE'] = 'on'
+                    reply_keyboard = kb.end_chat_keyboard
+                    reply_text = resources.operator_message
+                    with open(f'media/{chat_id}/history.txt', 'r') as f:
+                        history = f.read()
+                    jivochat.send_message(chat_id,
+                                          tracking_data['NAME'],
+                                          history,
+                                          'viber')
+                    try:
+                        with open(f'media/{chat_id}/links.txt', 'r') as f:
+                            content = f.read()
+                            links = content.split(',')
+                            for link in links:
+                                name = link.split('/')[-1]
+                                jivochat.send_photo(chat_id, tracking_data['NAME'], link, name, 'viber')
+                    except IOError:
+                        print("File not accessible")
+                    tracking_data['HISTORY'] = ''
+                    all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
+                    for i in all_filenames:
+                        f = open(i ,'rb')
+                        os.remove(i)
+                    try:
+                        open(f'media/{chat_id}/links.txt', 'w').close()
+                        open(f'media/{chat_id}/history.txt', 'w').close()
+                    except:
+                        pass
+                else:
+                    answer = [TextMessage(text=resources.operator_unavailable)]
+                    viber.send_messages(chat_id, answer)
+                    reply_keyboard = kb.menu_keyboard
+                    reply_text = resources.greeting_message
+                    time.sleep(1)
             elif text == 'video':
                 reply_keyboard = kb.confirmation_keyboard
                 reply_text = resources.video_acceptance_message
@@ -154,17 +177,6 @@ def user_message_handler(viber, viber_request):
                 reply_keyboard = kb.brand_keyboard
                 reply_text = resources.brand_message
                 tracking_data['STAGE'] = 'menu'
-            elif text == 'upload':
-                all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
-                reply_keyboard = kb.upload_keyboard
-                if all_filenames:
-                    reply_text = resources.reason_message
-                    tracking_data['STAGE'] = 'reason'
-                    keyboard = kb.opeartor_keyboard
-                else:
-                    keyboard = kb.upload_keyboard
-                    reply_text = resources.photo_error
-                reply_keyboard = keyboard
             elif text == 'reason':
                 list_of_dates = schedule_matcher()[:18]
                 beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%d.%m'), f'date%{x[0]}', '') for x in list_of_dates]
@@ -250,16 +262,22 @@ def user_message_handler(viber, viber_request):
                     text = text.replace(' ', '')
                     if len(text) == 16 and text.isdecimal() and text[0] == '3':
                         tracking_data['SERIAL_NUMBER'] = text
-                        reply_keyboard = kb.upload_keyboard
-                        reply_text = resources.photo_message
-                        tracking_data['STAGE'] = 'photo'
+                        reply_keyboard = kb.opeartor_keyboard
+                        reply_text = resources.photo_serial_message
+                        tracking_data['STAGE'] = 'photo_serial'
                     else:
                         reply_keyboard = kb.opeartor_keyboard
                         reply_text = resources.serial_number_error
                         tracking_data['STAGE'] = 'serial'
-                elif tracking_data['STAGE'] == 'photo':
-                    reply_keyboard = kb.upload_keyboard
-                    reply_text = resources.photo_message
+                elif tracking_data['STAGE'] == 'photo_serial':
+                    reply_keyboard = kb.opeartor_keyboard
+                    reply_text = resources.photo_error
+                elif tracking_data['STAGE'] == 'photo_guarantee':
+                    reply_keyboard = kb.opeartor_keyboard
+                    reply_text = resources.photo_error
+                elif tracking_data['STAGE'] == 'photo_check':
+                    reply_keyboard = kb.opeartor_keyboard
+                    reply_text = resources.photo_error
                 elif tracking_data['STAGE'] == 'reason':
                     tracking_data['REASON'] = text
                     list_of_dates = schedule_matcher()[:18]
