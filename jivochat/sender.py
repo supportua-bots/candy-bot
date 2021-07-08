@@ -113,6 +113,8 @@ if __name__=='__main__':
         "file_name":"150.png"
         }
         }
+    logger.info(input)
+    logger.info(URL)
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
