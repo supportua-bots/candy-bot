@@ -71,6 +71,7 @@ def send_photo(user_id, name, file, filename, source):
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
+    logger.info(x.json())
 
 
 @logger.catch
