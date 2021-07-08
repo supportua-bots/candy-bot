@@ -71,20 +71,14 @@ def send_photo(user_id, name, file, filename, source):
     input = {
         "sender" :
         {
-        "id" : "12345",
-        "name" : "John Doe",
-        "photo" : "example.com/photo.jpg",
-        "url" : "ya.ru/simple/page.html",
-        "phone" : "12345678901",
-        "email" : "john@doe.сom",
-        "invite" : "Hello! Can I help you?"
+        "id": user_id,
+        "name": f'{name} [{user_id}]',
         },
         "message":
         {
         "type":"photo",
         "file":"via.placeholder.com/150.png",
         "thumb":"via.placeholder.com/150.png",
-        "file_size":373,
         "file_name":"150.png"
         }
         }
