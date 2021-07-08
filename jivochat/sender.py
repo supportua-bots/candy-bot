@@ -58,14 +58,14 @@ def send_photo(user_id, name, file, filename, source):
     input = {
         "sender" :
             {
-            "id": user_id,
+            "id": str(user_id),
             "name": f'{name} [{user_id}]',
             },
             "message":
             {
             "type": "photo",
             "file": file,
-            "filename": name
+            "file_name": filename
             }
     }
     logger.info(input)
