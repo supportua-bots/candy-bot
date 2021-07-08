@@ -55,19 +55,19 @@ def send_photo(user_id, name, file, filename, source):
         URL = TELEGRAM_URL
     else:
         URL = VIBER_URL
-    input = {
-        "sender" :
-            {
-            "id": user_id,
-            "name": f'{name} [{user_id}]',
-            },
-            "message":
-            {
-            "type": "photo",
-            "file": file,
-            "filename": name
-            }
-    }
+    # input = {
+    #     "sender" :
+    #         {
+    #         "id": user_id,
+    #         "name": f'{name} [{user_id}]',
+    #         },
+    #         "message":
+    #         {
+    #         "type": "photo",
+    #         "file": file,
+    #         "filename": name
+    #         }
+    # }
     input = {
         "sender" :
         {
