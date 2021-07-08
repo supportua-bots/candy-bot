@@ -86,7 +86,7 @@ def chat_availability_check():
         # ts = datetime.now().timestamp()
         ts = 1625741899
         logger.info(f'{ts - date_start}, {date_end - ts}, {event["NAME"]}')
-        if date_start < ts < date_end and (event['NAME'] == non_working_hours or event['NAME'] == dayoff) and date_end >= 2000000000:
+        if date_start < ts < date_end and (event['NAME'] == non_working_hours or event['NAME'] == dayoff) and date_end <= 2000000000:
             logger.info(f'{ts - date_start}, {date_end - ts}, {event["NAME"]}')
             return False
     return True
