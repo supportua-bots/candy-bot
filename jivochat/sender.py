@@ -68,6 +68,26 @@ def send_photo(user_id, name, file, filename, source):
             "filename": name
             }
     }
+    input = {
+        "sender" :
+        {
+        "id" : "12345",
+        "name" : "John Doe",
+        "photo" : "example.com/photo.jpg",
+        "url" : "ya.ru/simple/page.html",
+        "phone" : "12345678901",
+        "email" : "john@doe.сom",
+        "invite" : "Hello! Can I help you?"
+        },
+        "message":
+        {
+        "type":"photo",
+        "file":"via.placeholder.com/150.png",
+        "thumb":"via.placeholder.com/150.png",
+        "file_size":373,
+        "file_name":"150.png"
+        }
+        }
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
