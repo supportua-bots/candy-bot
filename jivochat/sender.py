@@ -55,37 +55,23 @@ def send_photo(user_id, name, file, filename, source):
         URL = TELEGRAM_URL
     else:
         URL = VIBER_URL
-    # input = {
-    #     "sender" :
-    #         {
-    #         "id": user_id,
-    #         "name": f'{name} [{user_id}]',
-    #         },
-    #         "message":
-    #         {
-    #         "type": "photo",
-    #         "file": file,
-    #         "filename": name
-    #         }
-    # }
     input = {
         "sender" :
-        {
-        "id": user_id,
-        "name": f'{name} [{user_id}]',
-        },
-        "message":
-        {
-        "type":"photo",
-        "file":"via.placeholder.com/150.png",
-        "thumb":"via.placeholder.com/150.png",
-        "file_name":"150.png"
-        }
-        }
+            {
+            "id": user_id,
+            "name": f'{name} [{user_id}]',
+            },
+            "message":
+            {
+            "type": "photo",
+            "file": file,
+            "filename": name
+            }
+    }
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
-    logger.info(x.json())
+    logger.info(x.text)
 
 
 @logger.catch
@@ -110,3 +96,24 @@ def send_document(user_id, name, file, filename, source):
     x = requests.post(URL,
                       json=input,
                       headers={'content-type':'application/json'})
+
+
+if __name__=='__main__':
+    URL = 'https://wh.jivosite.com/IF6YK0nYgC56npYB/acdHNf3xhl'
+    input = {
+        "sender" :
+        {
+        "id" : "12345",
+        "name" : "John Doe"
+        },
+        "message":
+        {
+        "type":"photo",
+        "file":"https://api.telegram.org/file/bot1831293641:AAErIH3bFXlhn7FStlk3A7Q0zbyhpgFKXCI/photos/file_100.jpg",
+        "file_name":"150.png"
+        }
+        }
+    x = requests.post(URL,
+                      json=input,
+                      headers={'content-type':'application/json'})
+    logger.info(x.text)
