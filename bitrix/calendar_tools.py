@@ -89,7 +89,7 @@ def chat_availability_check():
             logger.info(event)
             logger.info(f'{ts - date_start}, {date_end - ts}, {event["NAME"]}')
             return False
-        if 'UNTIL' not in event['RRULE']:
+        if 'UNTIL' in event['RRULE']:
             logger.info(event)
     return True
 
