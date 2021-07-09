@@ -10,7 +10,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRe
 from telegram.ext import CallbackContext, ConversationHandler
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
-from viberbot.api.messages.text_message import TextMessage, PictureMessage
+from viberbot.api.messages.text_message import TextMessage
+from viberbot.api.messages.picture_message import PictureMessage
 from viberbot.api.viber_requests import (ViberFailedRequest,
                                          ViberConversationStartedRequest,
                                          ViberMessageRequest,
