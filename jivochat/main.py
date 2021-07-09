@@ -61,7 +61,7 @@ def main(data, source):
         if data['message']['type'] == 'photo':
             user = data['recipient']['id']
             print(user)
-            link = data['message']['photo']
+            link = data['message']['file']
             if source == 'telegram':
                 bot.send_photo(user, link)
             else:
