@@ -38,6 +38,7 @@ logger.add(
 )
 
 
+@logger.catch
 def main(data, source):
     if 'event_name' not in data:
         if data['message']['type'] == 'text':
