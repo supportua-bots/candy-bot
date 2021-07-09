@@ -10,7 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRe
 from telegram.ext import CallbackContext, ConversationHandler
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
-from viberbot.api.messages.text_message import TextMessage
+from viberbot.api.messages.text_message import TextMessage, PictureMessage
 from viberbot.api.viber_requests import (ViberFailedRequest,
                                          ViberConversationStartedRequest,
                                          ViberMessageRequest,
@@ -55,6 +55,21 @@ def main(data, source):
                 viber.send_messages(user, [TextMessage(text=text,
                                                        keyboard=reply_keyboard,
                                                         tracking_data=tracking_data)])
+        if data['message']['type'] == 'photo':
+            user = data['recipient']['id']
+            print(user)
+            link = data['message']['photo']
+            if source == 'telegram':
+                bot.send_photo(user, link)
+            else:
+                tracking_data = {'NAME': user, 'HISTORY': '', 'CHAT_MODE': 'on', 'STAGE': 'menu'}
+                tracking_data = json.dumps(tracking_data)
+                keyboard = [('Завершити чат', 'end_chat')]
+                reply_keyboard = keyboard_consctructor(keyboard)
+                viber.send_messages(user, [PictureMessage(text='',
+                                                        keyboard=reply_keyboard,
+                                                        tracking_data=tracking_data,
+                                                        media=link)])
     else:
         user_id = str(re.findall(f'\[(.*?)\]', data['visitor']['name'])[0])
         if data['event_name'] == 'chat_accepted':
