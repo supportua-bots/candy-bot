@@ -65,32 +65,39 @@ def user_message_handler(viber, viber_request):
         with open(img_path, 'wb') as f:
             f.write(response.content)
         link = upload_image(img_path)
-        file_links = open(f'media/{chat_id}/links.txt', 'a')
-        file_links.write(f'{link},')
-        file_links.close()
-        if tracking_data['STAGE'] == 'photo_serial':
-            reply_keyboard = kb.opeartor_keyboard
-            reply_text = resources.photo_guarantee_message
-            tracking_data['STAGE'] = 'photo_guarantee'
-        elif tracking_data['STAGE'] == 'photo_guarantee':
-            reply_keyboard = kb.opeartor_keyboard
-            reply_text = resources.photo_check_message
-            tracking_data['STAGE'] = 'photo_check'
-        elif tracking_data['STAGE'] == 'photo_check':
-            reply_text = resources.reason_message
-            tracking_data['STAGE'] = 'reason'
-            keyboard = kb.opeartor_keyboard
+        if tracking_data['CHAT_MODE'] == 'on':
+            payload = json.loads(jsonpickle.encode(viber_request.message))
+            jivochat.send_photo(chat_id, tracking_data['NAME'],
+                                link,
+                                'user_image',
+                                'viber')
         else:
-            reply_keyboard = kb.opeartor_keyboard
-            reply_text = resources.photo_error
-        save_message_to_history(reply_text, 'bot', chat_id)
-        logger.info(tracking_data)
-        tracking_data = json.dumps(tracking_data)
-        reply = [TextMessage(text=reply_text,
-                             keyboard=reply_keyboard,
-                             tracking_data=tracking_data,
-                             min_api_version=3)]
-        viber.send_messages(chat_id, reply)
+            file_links = open(f'media/{chat_id}/links.txt', 'a')
+            file_links.write(f'{link},')
+            file_links.close()
+            if tracking_data['STAGE'] == 'photo_serial':
+                reply_keyboard = kb.opeartor_keyboard
+                reply_text = resources.photo_guarantee_message
+                tracking_data['STAGE'] = 'photo_guarantee'
+            elif tracking_data['STAGE'] == 'photo_guarantee':
+                reply_keyboard = kb.opeartor_keyboard
+                reply_text = resources.photo_check_message
+                tracking_data['STAGE'] = 'photo_check'
+            elif tracking_data['STAGE'] == 'photo_check':
+                reply_text = resources.reason_message
+                tracking_data['STAGE'] = 'reason'
+                keyboard = kb.opeartor_keyboard
+            else:
+                reply_keyboard = kb.opeartor_keyboard
+                reply_text = resources.photo_error
+            save_message_to_history(reply_text, 'bot', chat_id)
+            logger.info(tracking_data)
+            tracking_data = json.dumps(tracking_data)
+            reply = [TextMessage(text=reply_text,
+                                 keyboard=reply_keyboard,
+                                 tracking_data=tracking_data,
+                                 min_api_version=3)]
+            viber.send_messages(chat_id, reply)
     else:
         text = viber_request.message.text
         save_message_to_history(text, 'user', chat_id)
