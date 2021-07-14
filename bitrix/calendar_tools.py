@@ -84,10 +84,13 @@ def chat_availability_check():
     event_list = []
     for event in answer['result']:
         print(event['NAME'])
-        date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
-        date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
+        date_start = datetime.strptime(event['DATE_FROM'], '%d.%m.%Y %H:%M:%S').timestamp()
+        date_end = datetime.strptime(event['DATE_TO'], '%d.%m.%Y %H:%M:%S').timestamp()
         ts = datetime.now().timestamp()
         # ts = 1625741899
+        # if event['NAME'] == non_working_hours or event['NAME'] == dayoff:
+        #     logger.info(event)
+        #     logger.info(f'{date_start}, {date_end}, {ts}')
         if date_start < ts < date_end and (event['NAME'] == non_working_hours or event['NAME'] == dayoff):
             logger.info(event)
             logger.info(f'{ts - date_start}, {date_end - ts}, {event["NAME"]}')
