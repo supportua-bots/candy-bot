@@ -8,8 +8,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from datetime import datetime, date, timedelta
-from bitrix.admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
-# from admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
+# from bitrix.admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
+from admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
 from loguru import logger
 
 
@@ -65,10 +65,13 @@ def calendar_grabber():
     answer = x.json()
     event_list = []
     for event in answer['result']:
-        date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
-        date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
-        if event['NAME'] != non_working_hours:
-            event_list.append((date_start, date_end))
+        if event['NAME'] == non_working_hours or event['NAME'] == dayoff:
+            logger.info(event)
+            if event['RRULE'] == '':
+                date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
+                date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
+                if event['NAME'] != non_working_hours:
+                    event_list.append((date_start, date_end))
     return event_list
 
 
@@ -83,9 +86,9 @@ def chat_availability_check():
         print(event['NAME'])
         date_start = float(event['DATE_FROM_TS_UTC']) + 10800.0
         date_end = float(event['DATE_TO_TS_UTC']) + 10800.0
-        # ts = datetime.now().timestamp()
-        ts = 1625741899
-        if date_start < ts < date_end and (event['NAME'] == non_working_hours or event['NAME'] == dayoff) and 'UNTIL' not in event['RRULE']:
+        ts = datetime.now().timestamp()
+        # ts = 1625741899
+        if date_start < ts < date_end and (event['NAME'] == non_working_hours or event['NAME'] == dayoff):
             logger.info(event)
             logger.info(f'{ts - date_start}, {date_end - ts}, {event["NAME"]}')
             return False
@@ -176,4 +179,4 @@ def upload_image(path):
 
 
 if __name__ == '__main__':
-    print(schedule_matcher())
+    print(chat_availability_check())
