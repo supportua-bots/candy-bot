@@ -8,8 +8,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from datetime import datetime, date, timedelta
-# from bitrix.admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
-from admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
+from bitrix.admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
+# from admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
 from loguru import logger
 
 
