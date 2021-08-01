@@ -16,11 +16,11 @@ from viberbot.api.messages.contact_message import ContactMessage
 from viberbot.api.messages.location_message import LocationMessage
 from viberbot.api.messages.rich_media_message import RichMediaMessage
 from viberbot.api.messages.picture_message import PictureMessage
+from viberbot.api.messages.video_message import VideoMessage
 from jivochat import sender as jivochat
 from jivochat.utils import resources as jivosource
 from bitrix.calendar_tools import schedule_matcher, add_event, add_to_crm, add_comment, upload_image, chat_availability_check
 from textskeyboards import viberkeyboards as kb
-
 
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
@@ -41,7 +41,8 @@ def user_message_handler(viber, viber_request):
     reply_rich_media = {}
 
     if tracking_data is None:
-        tracking_data = {'NAME': 'ViberUser', 'HISTORY': '', 'CHAT_MODE': 'off', 'STAGE': 'menu'}
+        tracking_data = {'NAME': 'ViberUser', 'HISTORY': '',
+                         'CHAT_MODE': 'off', 'STAGE': 'menu'}
     else:
         tracking_data = json.loads(tracking_data)
 
@@ -57,6 +58,12 @@ def user_message_handler(viber, viber_request):
                              tracking_data=tracking_data,
                              min_api_version=3)]
         viber.send_messages(chat_id, reply)
+    elif isinstance(message, VideoMessage):
+        if tracking_data['CHAT_MODE'] == 'on':
+            jivochat.send_video(chat_id, tracking_data['NAME'],
+                                viber_request.message.media,
+                                viber_request.message_token,
+                                'viber')
     elif isinstance(message, PictureMessage):
         response = requests.get(viber_request.message.media)
         if not os.path.exists(f'media/{chat_id}'):
@@ -152,13 +159,15 @@ def user_message_handler(viber, viber_request):
                             links = content.split(',')
                             for link in links:
                                 name = link.split('/')[-1]
-                                jivochat.send_photo(chat_id, tracking_data['NAME'], link, name, 'viber')
+                                jivochat.send_photo(
+                                    chat_id, tracking_data['NAME'], link, name, 'viber')
                     except IOError:
                         print("File not accessible")
                     tracking_data['HISTORY'] = ''
-                    all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
+                    all_filenames = [i for i in glob.glob(
+                        f'media/{chat_id}/*.jpg')]
                     for i in all_filenames:
-                        f = open(i ,'rb')
+                        f = open(i, 'rb')
                         os.remove(i)
                     try:
                         open(f'media/{chat_id}/links.txt', 'w').close()
@@ -194,7 +203,8 @@ def user_message_handler(viber, viber_request):
                 tracking_data['STAGE'] = 'menu'
             elif text == 'reason':
                 list_of_dates = schedule_matcher()[:18]
-                beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%d.%m'), f'date%{x[0]}', '') for x in list_of_dates]
+                beautified_dates = [(datetime.strptime(
+                    x[0], '%Y-%m-%d').strftime('%d.%m'), f'date%{x[0]}', '') for x in list_of_dates]
                 reply_keyboard = keyboard_consctructor(beautified_dates)
                 reply_text = resources.date_message
                 tracking_data['STAGE'] = 'menu'
@@ -206,7 +216,8 @@ def user_message_handler(viber, viber_request):
                 for dates in list_of_dates:
                     if dates[0] == choosed_date:
                         choosed_item = dates
-                keyboard = [(x[0], f'time%{x[0]}', '') for x in choosed_item[1]]
+                keyboard = [(x[0], f'time%{x[0]}', '')
+                            for x in choosed_item[1]]
                 keyboard.append(kb.back_to_date)
                 reply_keyboard = keyboard_consctructor(keyboard)
                 reply_text = resources.time_message
@@ -230,25 +241,29 @@ def user_message_handler(viber, viber_request):
                 if 'TIME' in tracking_data.keys():
                     answer += f'Час: {tracking_data["TIME"]}\n'
                 datetime_string = f'{tracking_data["DATE"]} {tracking_data["TIME"]}'
-                beautified_date = datetime.strptime(datetime_string, '%Y-%m-%d %H:%M')
+                beautified_date = datetime.strptime(
+                    datetime_string, '%Y-%m-%d %H:%M')
                 deal_id = add_to_crm(category=tracking_data["CATEGORY"],
-                           reason=tracking_data["REASON"],
-                           phone=tracking_data["PHONE"],
-                           brand=tracking_data["BRAND"],
-                           serial=tracking_data["SERIAL_NUMBER"],
-                           name=tracking_data['NAME'],
-                           date=tracking_data["DATE"],
-                           time=beautified_date)
+                                     reason=tracking_data["REASON"],
+                                     phone=tracking_data["PHONE"],
+                                     brand=tracking_data["BRAND"],
+                                     serial=tracking_data["SERIAL_NUMBER"],
+                                     name=tracking_data['NAME'],
+                                     date=tracking_data["DATE"],
+                                     time=beautified_date)
                 viber.send_messages(chat_id, [TextMessage(text=answer)])
                 timestamp_start = datetime.timestamp(beautified_date)
-                timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
-                add_event(timestamp_start, timestamp_end, f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
+                timestamp_end = datetime.timestamp(
+                    beautified_date + timedelta(minutes=30))
+                add_event(timestamp_start, timestamp_end,
+                          f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
                 tracking_data['HISTORY'] = ''
                 reply_keyboard = kb.return_keyboard
                 reply_text = resources.final_message_viber
-                all_filenames = [i for i in glob.glob(f'media/{chat_id}/*.jpg')]
+                all_filenames = [i for i in glob.glob(
+                    f'media/{chat_id}/*.jpg')]
                 for i in all_filenames:
-                    f = open(i ,'rb')
+                    f = open(i, 'rb')
                     # context.bot.send_document(chat_id=update.callback_query.message.chat.id, document=f)
                     os.remove(i)
                 with open(f'media/{chat_id}/links.txt', 'r') as links:
@@ -296,7 +311,8 @@ def user_message_handler(viber, viber_request):
                 elif tracking_data['STAGE'] == 'reason':
                     tracking_data['REASON'] = text
                     list_of_dates = schedule_matcher()[:18]
-                    beautified_dates = [(datetime.strptime(x[0], '%Y-%m-%d').strftime('%a, %d %b'), f'date%{x[0]}', '') for x in list_of_dates]
+                    beautified_dates = [(datetime.strptime(
+                        x[0], '%Y-%m-%d').strftime('%a, %d %b'), f'date%{x[0]}', '') for x in list_of_dates]
                     reply_keyboard = keyboard_consctructor(beautified_dates)
                     reply_text = resources.date_message
                     tracking_data['STAGE'] = 'menu'
