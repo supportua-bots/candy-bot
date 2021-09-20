@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from datetime import datetime, date, timedelta
-from bitrix.admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
+from bitrix.admin import ATTENDEES, OWNER_ID, SECTION_ID, non_working_hours, dayoff
 # from admin import OWNER_ID, SECTION_ID, non_working_hours, dayoff
 from loguru import logger
 
@@ -44,18 +44,23 @@ def workdays(d, end, excluded=(6, 7)):
 @logger.catch
 def time_table_creator():
     timetable = {}
-    list_of_dates = workdays(datetime.now(), datetime.now() + timedelta(days=60))
+    list_of_dates = workdays(
+        datetime.now(), datetime.now() + timedelta(days=60))
     for date in list_of_dates:
         stringified_date = date.strftime('%Y-%m-%d')
         for time_period in time_chunks:
             datetime_string = f'{stringified_date} {time_period}'
-            beautified_date = datetime.strptime(datetime_string, '%Y-%m-%d %H:%M')
+            beautified_date = datetime.strptime(
+                datetime_string, '%Y-%m-%d %H:%M')
             timestamp_start = datetime.timestamp(beautified_date)
-            timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
+            timestamp_end = datetime.timestamp(
+                beautified_date + timedelta(minutes=30))
             if stringified_date in timetable:
-                timetable[stringified_date].append([time_period, timestamp_start, timestamp_end])
+                timetable[stringified_date].append(
+                    [time_period, timestamp_start, timestamp_end])
             else:
-                timetable[stringified_date] = [[time_period, timestamp_start, timestamp_end]]
+                timetable[stringified_date] = [
+                    [time_period, timestamp_start, timestamp_end]]
     return timetable
 
 
@@ -84,8 +89,10 @@ def chat_availability_check():
     event_list = []
     for event in answer['result']:
         print(event['NAME'])
-        date_start = datetime.strptime(event['DATE_FROM'], '%d.%m.%Y %H:%M:%S').timestamp()
-        date_end = datetime.strptime(event['DATE_TO'], '%d.%m.%Y %H:%M:%S').timestamp()
+        date_start = datetime.strptime(
+            event['DATE_FROM'], '%d.%m.%Y %H:%M:%S').timestamp()
+        date_end = datetime.strptime(
+            event['DATE_TO'], '%d.%m.%Y %H:%M:%S').timestamp()
         ts = datetime.now().timestamp()
         # ts = 1625741899
         # if event['NAME'] == non_working_hours or event['NAME'] == dayoff:
@@ -98,8 +105,6 @@ def chat_availability_check():
         # if 'UNTIL' in event['RRULE']:
         #     logger.info(event)
     return True
-
-
 
 
 @logger.catch
@@ -132,25 +137,28 @@ def schedule_matcher():
 
 @logger.catch
 def add_event(start, end, name, deal_id):
+    added_users = ''
+    for item in ATTENDEES:
+        added_users += f'attendees[]={item}&'
     link = f'https://supportua.bitrix24.ua/crm/deal/details/{deal_id}/'
-    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=company_calendar&ownerId=U_115&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&attendees[]=355&attendees[]=78&attendees[]=383&attendees[]=178&attendees[]=253&attendees[]=2067&description={link}'
+    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=company_calendar&ownerId=U_115&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&{added_users}description={link}'
     x = requests.get(SEND_URL)
 
 
 @logger.catch
 def add_to_crm(category, reason, phone, brand, serial, name, date, time):
     MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/cml51zgfaxwxwa2x/crm.deal.add.json?'
-    fields = {'fields[CATEGORY_ID]':11,
-              'fields[STAGE]':'Нове звернення',
-              'fields[UF_CRM_1620715237492]':category,
-              'fields[UF_CRM_1612445730392]':phone,
-              'fields[UF_CRM_1612436268887]':brand,
-              'fields[UF_CRM_1612436246623]':serial,
-              'fields[UF_CRM_1620715280976]':reason,
-              'fields[UF_CRM_1620726993270]':name,
-              'fields[UF_CRM_1620715319172]':date,
-              'fields[UF_CRM_1620715309625]':time,
-              'fields[ASSIGNED_BY_ID]':OWNER_ID}
+    fields = {'fields[CATEGORY_ID]': 11,
+              'fields[STAGE]': 'Нове звернення',
+              'fields[UF_CRM_1620715237492]': category,
+              'fields[UF_CRM_1612445730392]': phone,
+              'fields[UF_CRM_1612436268887]': brand,
+              'fields[UF_CRM_1612436246623]': serial,
+              'fields[UF_CRM_1620715280976]': reason,
+              'fields[UF_CRM_1620726993270]': name,
+              'fields[UF_CRM_1620715319172]': date,
+              'fields[UF_CRM_1620715309625]': time,
+              'fields[ASSIGNED_BY_ID]': OWNER_ID}
     url = MAIN_URL + urlencode(fields, doseq=True)
     x = requests.get(url)
     return x.json()['result']
@@ -159,9 +167,9 @@ def add_to_crm(category, reason, phone, brand, serial, name, date, time):
 @logger.catch
 def add_comment(deal_id, comment):
     MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/96pk71aujg4fj1r7/crm.timeline.comment.add.json?'
-    fields = {'fields[ENTITY_ID]':deal_id,
-              'fields[ENTITY_TYPE]':'deal',
-              'fields[COMMENT]':comment}
+    fields = {'fields[ENTITY_ID]': deal_id,
+              'fields[ENTITY_TYPE]': 'deal',
+              'fields[COMMENT]': comment}
     url = MAIN_URL + urlencode(fields, doseq=True)
     x = requests.get(url)
     return x.json()['result']
