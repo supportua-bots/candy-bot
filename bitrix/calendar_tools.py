@@ -16,6 +16,7 @@ from loguru import logger
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
 
+bitrix_key = os.getenv('BITRIX_KEY')
 
 logger.add(
     "logs/info.log",
@@ -26,7 +27,7 @@ logger.add(
 )
 
 
-URL = f'https://supportua.bitrix24.ua/rest/2067/2ganq1hgz5etn112/calendar.event.get.json?type=company_calendar&ownerId=U_115&section={SECTION_ID}'
+URL = f'https://supportua.bitrix24.ua/rest/2067/{bitrix_key}/calendar.event.get.json?type=company_calendar&ownerId=U_115&section={SECTION_ID}'
 
 time_chunks = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
 
@@ -141,13 +142,13 @@ def add_event(start, end, name, deal_id):
     for item in ATTENDEES:
         added_users += f'attendees[]={item}&'
     link = f'https://supportua.bitrix24.ua/crm/deal/details/{deal_id}/'
-    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/h77kc3hpgxie6dxl/calendar.event.add.json?type=company_calendar&ownerId=U_115&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&{added_users}description={link}'
+    SEND_URL = f'https://supportua.bitrix24.ua/rest/2067/{bitrix_key}/calendar.event.add.json?type=company_calendar&ownerId=U_115&from_ts={int(start)}&to_ts={int(end)}&section={SECTION_ID}&name={name}&is_meeting=Y&{added_users}description={link}'
     x = requests.get(SEND_URL)
 
 
 @logger.catch
 def add_to_crm(category, reason, phone, brand, serial, name, date, time):
-    MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/cml51zgfaxwxwa2x/crm.deal.add.json?'
+    MAIN_URL = f'https://supportua.bitrix24.ua/rest/2067/{bitrix_key}/crm.deal.add.json?'
     fields = {'fields[CATEGORY_ID]': 11,
               'fields[STAGE]': 'Нове звернення',
               'fields[UF_CRM_1620715237492]': category,
@@ -166,7 +167,7 @@ def add_to_crm(category, reason, phone, brand, serial, name, date, time):
 
 @logger.catch
 def add_comment(deal_id, comment):
-    MAIN_URL = 'https://supportua.bitrix24.ua/rest/2067/96pk71aujg4fj1r7/crm.timeline.comment.add.json?'
+    MAIN_URL = f'https://supportua.bitrix24.ua/rest/2067/{bitrix_key}/crm.timeline.comment.add.json?'
     fields = {'fields[ENTITY_ID]': deal_id,
               'fields[ENTITY_TYPE]': 'deal',
               'fields[COMMENT]': comment}
