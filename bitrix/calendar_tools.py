@@ -162,6 +162,8 @@ def add_to_crm(category, reason, phone, brand, serial, name, date, time):
               'fields[ASSIGNED_BY_ID]': OWNER_ID}
     url = MAIN_URL + urlencode(fields, doseq=True)
     x = requests.get(url)
+    logger.info(x.text)
+    logger.info(x.json())
     return x.json()['result']
 
 
