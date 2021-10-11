@@ -51,13 +51,14 @@ def main(data, source):
             if source == 'telegram':
                 bot.send_message(user, text)
             else:
-                tracking_data = {'NAME': user, 'HISTORY': '', 'CHAT_MODE': 'on', 'STAGE': 'menu'}
+                tracking_data = {'NAME': user, 'HISTORY': '',
+                                 'CHAT_MODE': 'on', 'STAGE': 'menu'}
                 tracking_data = json.dumps(tracking_data)
                 keyboard = [('Завершити чат', 'end_chat')]
                 reply_keyboard = keyboard_consctructor(keyboard)
                 viber.send_messages(user, [TextMessage(text=text,
                                                        keyboard=reply_keyboard,
-                                                        tracking_data=tracking_data)])
+                                                       tracking_data=tracking_data)])
         if data['message']['type'] == 'photo':
             user = data['recipient']['id']
             print(user)
@@ -65,32 +66,46 @@ def main(data, source):
             if source == 'telegram':
                 bot.send_photo(user, link)
             else:
-                tracking_data = {'NAME': user, 'HISTORY': '', 'CHAT_MODE': 'on', 'STAGE': 'menu'}
+                tracking_data = {'NAME': user, 'HISTORY': '',
+                                 'CHAT_MODE': 'on', 'STAGE': 'menu'}
                 tracking_data = json.dumps(tracking_data)
                 keyboard = [('Завершити чат', 'end_chat')]
                 reply_keyboard = keyboard_consctructor(keyboard)
                 viber.send_messages(user, [PictureMessage(text='',
-                                                        keyboard=reply_keyboard,
-                                                        tracking_data=tracking_data,
-                                                        media=link)])
+                                                          keyboard=reply_keyboard,
+                                                          tracking_data=tracking_data,
+                                                          media=link)])
     else:
         user_id = str(re.findall(f'\[(.*?)\]', data['visitor']['name'])[0])
         if data['event_name'] == 'chat_accepted':
-            bot.send_message(user_id, resources.operator_connected)
+            if source == 'telegram':
+                bot.send_message(user_id, resources.operator_connected)
+            else:
+                tracking_data = {'NAME': user, 'HISTORY': '',
+                                 'CHAT_MODE': 'on', 'STAGE': 'menu'}
+                tracking_data = json.dumps(tracking_data)
+                keyboard = [('Завершити чат', 'end_chat')]
+                reply_keyboard = keyboard_consctructor(keyboard)
+                viber.send_messages(user, [TextMessage(text=resources.operator_connected,
+                                                       keyboard=reply_keyboard,
+                                                       tracking_data=tracking_data)])
+
         if data['event_name'] == 'chat_finished':
             if resources.user_ended_chat not in str(data['plain_messages']):
-                reply_markup = ReplyKeyboardRemove()
-                bot.send_message(
-                            chat_id=user_id,
-                            text=resources.operator_ended_chat,
-                            reply_markup=reply_markup)
-                time.sleep(1)
-                inline_keyboard = [[InlineKeyboardButton(text='Меню',
-                                            callback_data='start')]]
-                inline_buttons = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-                bot.send_message(
-                            chat_id=user_id,
-                            text=resources.final_touch,
-                            reply_markup=inline_buttons)
+                if source == 'telegram':
+                    reply_markup = ReplyKeyboardRemove()
+                    bot.send_message(
+                                chat_id=user_id,
+                                text=resources.operator_ended_chat,
+                                reply_markup=reply_markup)
+                    time.sleep(1)
+                    inline_keyboard = [[InlineKeyboardButton(text='Меню',
+                                                             callback_data='start')]]
+                    inline_buttons = InlineKeyboardMarkup(
+                        inline_keyboard=inline_keyboard)
+                    bot.send_message(
+                                chat_id=user_id,
+                                text=resources.final_touch,
+                                reply_markup=inline_buttons)
     returned_data = {'result': 'ok'}
     return returned_data
