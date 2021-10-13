@@ -4,10 +4,12 @@ import json
 import jsonpickle
 import time
 import requests
+import threading
 import vibertelebot.utils.additional_keyboard as addkb
 from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
+from multiprocessing import Process
 from datetime import date, datetime, timedelta
 from textskeyboards import texts as resources
 from vibertelebot.utils.tools import keyboard_consctructor, save_message_to_history, workdays, divide_chunks
@@ -25,6 +27,37 @@ from textskeyboards import viberkeyboards as kb
 
 dotenv_path = os.path.join(Path(__file__).parent.parent, 'config/.env')
 load_dotenv(dotenv_path)
+
+
+def event_creation(tracking_data, chat_id):
+    datetime_string = f'{tracking_data["DATE"]} {tracking_data["TIME"]}'
+    beautified_date = datetime.strptime(
+        datetime_string, '%Y-%m-%d %H:%M')
+    deal_id = add_to_crm(category=tracking_data["CATEGORY"],
+                         reason=tracking_data["REASON"],
+                         phone=tracking_data["PHONE"],
+                         brand=tracking_data["BRAND"],
+                         serial=tracking_data["SERIAL_NUMBER"],
+                         name=tracking_data['NAME'],
+                         date=tracking_data["DATE"],
+                         time=beautified_date)
+    timestamp_start = datetime.timestamp(beautified_date)
+    timestamp_end = datetime.timestamp(
+        beautified_date + timedelta(minutes=30))
+    add_event(timestamp_start, timestamp_end,
+              f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
+    all_filenames = [i for i in glob.glob(
+        f'media/{chat_id}/*.jpg')]
+    for i in all_filenames:
+        f = open(i, 'rb')
+        # context.bot.send_document(chat_id=update.callback_query.message.chat.id, document=f)
+        os.remove(i)
+    with open(f'media/{chat_id}/links.txt', 'r') as links:
+        text = links.read()
+        for link in text.split(','):
+            if link != '':
+                add_comment(deal_id, link)
+    open(f'media/{chat_id}/links.txt', 'w').close()
 
 
 def user_message_handler(viber, viber_request):
@@ -240,38 +273,17 @@ def user_message_handler(viber, viber_request):
                     answer += f'Дата: {tracking_data["DATE"]}\n'
                 if 'TIME' in tracking_data.keys():
                     answer += f'Час: {tracking_data["TIME"]}\n'
-                datetime_string = f'{tracking_data["DATE"]} {tracking_data["TIME"]}'
-                beautified_date = datetime.strptime(
-                    datetime_string, '%Y-%m-%d %H:%M')
-                deal_id = add_to_crm(category=tracking_data["CATEGORY"],
-                                     reason=tracking_data["REASON"],
-                                     phone=tracking_data["PHONE"],
-                                     brand=tracking_data["BRAND"],
-                                     serial=tracking_data["SERIAL_NUMBER"],
-                                     name=tracking_data['NAME'],
-                                     date=tracking_data["DATE"],
-                                     time=beautified_date)
                 viber.send_messages(chat_id, [TextMessage(text=answer)])
-                timestamp_start = datetime.timestamp(beautified_date)
-                timestamp_end = datetime.timestamp(
-                    beautified_date + timedelta(minutes=30))
-                add_event(timestamp_start, timestamp_end,
-                          f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
                 tracking_data['HISTORY'] = ''
                 reply_keyboard = kb.return_keyboard
                 reply_text = resources.final_message_viber
-                all_filenames = [i for i in glob.glob(
-                    f'media/{chat_id}/*.jpg')]
-                for i in all_filenames:
-                    f = open(i, 'rb')
-                    # context.bot.send_document(chat_id=update.callback_query.message.chat.id, document=f)
-                    os.remove(i)
-                with open(f'media/{chat_id}/links.txt', 'r') as links:
-                    text = links.read()
-                    for link in text.split(','):
-                        if link != '':
-                            add_comment(deal_id, link)
-                open(f'media/{chat_id}/links.txt', 'w').close()
+                try:
+                    background_process = Process(target=event_creation, args=(
+                        tracking_data, chat_id)).start()
+                except:
+                    download_thread = threading.Thread(target=event_creation, args=(
+                        tracking_data, chat_id))
+                    download_thread.start()
             else:
                 if tracking_data['STAGE'] == 'name':
                     tracking_data['NAME'] = text
@@ -320,11 +332,6 @@ def user_message_handler(viber, viber_request):
                     reply_keyboard = kb.return_keyboard
                     reply_text = resources.echo_message_viber
             save_message_to_history(reply_text, 'bot', chat_id)
-            counter = 0
-            for item in tracking_data.keys():
-                counter += len(item)
-                counter += len(tracking_data[item])
-            logger.info(counter)
             logger.info(tracking_data)
             tracking_data = json.dumps(tracking_data)
             reply = [TextMessage(text=reply_text,
@@ -332,3 +339,5 @@ def user_message_handler(viber, viber_request):
                                  tracking_data=tracking_data,
                                  min_api_version=6)]
             viber.send_messages(chat_id, reply)
+            if background_process:
+                background_process.join()
