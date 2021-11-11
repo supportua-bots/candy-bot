@@ -81,7 +81,7 @@ def main(data, source):
             if source == 'telegram':
                 bot.send_message(user_id, resources.operator_connected)
             else:
-                tracking_data = {'NAME': user, 'HISTORY': '',
+                tracking_data = {'NAME': 'ViberUser', 'HISTORY': '',
                                  'CHAT_MODE': 'on', 'STAGE': 'menu'}
                 tracking_data = json.dumps(tracking_data)
                 keyboard = [('Завершити чат', 'end_chat')]

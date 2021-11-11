@@ -1,3 +1,5 @@
+import functools
+import subprocess
 from flask import Flask, request, Response, json, jsonify
 from multiprocessing import Process
 from telegrambot import main as tgbot
@@ -8,6 +10,19 @@ from vibertelebot import main as vbbot
 app = Flask(__name__)
 
 
+def error_handler(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        while True:
+            try:
+                return func(*args, **kwargs)
+            except Exception:
+                subprocess.call(
+                    ["expect", "/var/www/chatbots2021/candy-bot/restart"])
+    return wrapper
+
+
+@error_handler
 @app.route('/jivochatgram', methods=['GET', 'POST'])
 def jivochat_endpoint_telegram():
     source = 'telegram'
@@ -22,6 +37,7 @@ def jivochat_endpoint_telegram():
     return response
 
 
+@error_handler
 @app.route('/jivochatviber', methods=['GET', 'POST'])
 def jivochat_endpoint_viber():
     source = 'viber'
@@ -36,6 +52,7 @@ def jivochat_endpoint_viber():
     return response
 
 
+@error_handler
 @app.route('/viber', methods=['POST'])
 def viber_endpoint():
     source = 'viber'
@@ -43,6 +60,7 @@ def viber_endpoint():
     return Response(status=200)
 
 
+@error_handler
 def server_launch():
     app.run(host='0.0.0.0', port=8000)
 

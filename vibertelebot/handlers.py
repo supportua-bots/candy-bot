@@ -67,6 +67,7 @@ def user_message_handler(viber, viber_request):
     message = viber_request.message
     tracking_data = message.tracking_data
     chat_id = viber_request.sender.id
+    background_process = None
     # Data for usual TextMessage
     reply_text = ''
     reply_keyboard = {}
