@@ -43,9 +43,9 @@ def event_creation(tracking_data, chat_id):
                          date=tracking_data["DATE"],
                          time=date_for_crm)
     timestamp_start = datetime.timestamp(
-        beautified_date - timedelta(minutes=120))
+        beautified_date - timedelta(minutes=60))
     timestamp_end = datetime.timestamp(
-        beautified_date - timedelta(minutes=90))
+        beautified_date - timedelta(minutes=30))
     add_event(timestamp_start, timestamp_end,
               f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
     all_filenames = [i for i in glob.glob(
