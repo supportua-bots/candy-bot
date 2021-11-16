@@ -33,6 +33,7 @@ def event_creation(tracking_data, chat_id):
     datetime_string = f'{tracking_data["DATE"]} {tracking_data["TIME"]}'
     beautified_date = datetime.strptime(
         datetime_string, '%Y-%m-%d %H:%M')
+    date_for_crm = beautified_date + timedelta(minutes=60)
     deal_id = add_to_crm(category=tracking_data["CATEGORY"],
                          reason=tracking_data["REASON"],
                          phone=tracking_data["PHONE"],
@@ -40,11 +41,11 @@ def event_creation(tracking_data, chat_id):
                          serial=tracking_data["SERIAL_NUMBER"],
                          name=tracking_data['NAME'],
                          date=tracking_data["DATE"],
-                         time=beautified_date)
+                         time=date_for_crm)
     timestamp_start = datetime.timestamp(
-        beautified_date - timedelta(minutes=60))
+        beautified_date - timedelta(minutes=120))
     timestamp_end = datetime.timestamp(
-        beautified_date - timedelta(minutes=30))
+        beautified_date - timedelta(minutes=90))
     add_event(timestamp_start, timestamp_end,
               f'Вiдео дзiнок з {tracking_data["NAME"]}', deal_id)
     all_filenames = [i for i in glob.glob(
