@@ -635,6 +635,7 @@ def time_handler(update: Update, context: CallbackContext):
         text += f'Час: {context.user_data["TIME"]}\n'
     datetime_string = f'{context.user_data["DATE"]} {context.user_data["TIME"]}'
     beautified_date = datetime.strptime(datetime_string, '%Y-%m-%d %H:%M')
+    date_for_crm = beautified_date + timedelta(minutes=60)
     deal_id = add_to_crm(category=context.user_data["CATEGORY"],
                          reason=context.user_data["REASON"],
                          phone=context.user_data["PHONE"],
@@ -642,9 +643,11 @@ def time_handler(update: Update, context: CallbackContext):
                          serial=context.user_data["SERIAL_NUMBER"],
                          name=context.user_data['NAME'],
                          date=context.user_data["DATE"],
-                         time=beautified_date)
-    timestamp_start = datetime.timestamp(beautified_date)
-    timestamp_end = datetime.timestamp(beautified_date + timedelta(minutes=30))
+                         time=date_for_crm)
+    timestamp_start = datetime.timestamp(
+        beautified_date - timedelta(minutes=60))
+    timestamp_end = datetime.timestamp(
+        beautified_date - timedelta(minutes=30))
     add_event(timestamp_start, timestamp_end,
               f'Вiдео дзiнок з {context.user_data["NAME"]}', deal_id)
     reply_markup = ReplyKeyboardRemove()
