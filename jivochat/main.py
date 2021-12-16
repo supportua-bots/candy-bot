@@ -87,8 +87,8 @@ def main(data, source):
                 keyboard = [('Завершити чат', 'end_chat')]
                 reply_keyboard = keyboard_consctructor(keyboard)
                 viber.send_messages(user_id, [TextMessage(text=resources.operator_connected,
-                                                       keyboard=reply_keyboard,
-                                                       tracking_data=tracking_data)])
+                                                          keyboard=reply_keyboard,
+                                                          tracking_data=tracking_data)])
 
         if data['event_name'] == 'chat_finished':
             if resources.user_ended_chat not in str(data['plain_messages']):
