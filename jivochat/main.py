@@ -86,7 +86,7 @@ def main(data, source):
                 tracking_data = json.dumps(tracking_data)
                 keyboard = [('Завершити чат', 'end_chat')]
                 reply_keyboard = keyboard_consctructor(keyboard)
-                viber.send_messages(user, [TextMessage(text=resources.operator_connected,
+                viber.send_messages(user_id, [TextMessage(text=resources.operator_connected,
                                                        keyboard=reply_keyboard,
                                                        tracking_data=tracking_data)])
 
